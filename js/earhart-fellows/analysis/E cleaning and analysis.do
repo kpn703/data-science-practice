@@ -1,6 +1,11 @@
-***ALWAYS START BY STARTING THE LOG***
+///Stata 13 log file - Creating a new file instead of potentially messing up the original..
 *log using "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\Earhart analysis.smcl" ///First time
-log using "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\E cleaning and analysis.smcl", append name(main)
+*log using "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\E cleaning and analysis.smcl", append name(main)
+
+
+***ALWAYS START BY STARTING THE LOG***
+*log using "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\Earhart analysis15.smcl" ///First time
+log using "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\Earhart analysis15.smcl", append
 
 clear all
 set more off
@@ -36,7 +41,7 @@ format gi_1 gi_2 %30s
 
 ***institutions that are the same but have different names/have different names but are the same***
 replace gi_1="London School of Economics" if regexm(gi_1, "London School of economics")==1
-replace gi_1="École des Hautes Etudes en Sciences Sociales" if regexm(gi_1, "Ecol")==1
+replace gi_1="Ã‰cole des Hautes Etudes en Sciences Sociales" if regexm(gi_1, "Ecol")==1
 replace gi_1="Claremont Graduate University" if regexm(gi_1, "Claremont Graduate School")==1
 replace gi_1="Claremont McKenna College" if regexm(gi_1, "Claremont Men's College")==1
 replace gi_1="Georgetown University" if regexm(gi_1, "Georgetown University")==1 
@@ -60,7 +65,7 @@ replace gi_1="Indiana University" if regexm(gi_1, "University of Indiana")==1
 *replace gi_1="Princeton University" if regexm(gi_1, "Princeton Theological Seminary")==1 ///Not the same according to one comment... Make sure not influential to results...
 
 ***Stringgroup to see whether typo's exist in gi_1
-strgroup gi_1, gen(gi_grouped) threshold(.01)
+*strgroup gi_1, gen(gi_grouped) threshold(.01) ///Not needed anymore?
 
 ***Clean/match typo's etc. among sponsors
 strgroup sponsors, gen(sponsors_grouped) threshold(0.01)
@@ -82,6 +87,26 @@ replace sponsors="G. Ellis Sandoz Jr." if regexm(sponsors, "G. Ellis Sandoz")==1
 ***Subinstr inconsistent use of and/&,  
 replace sponsors=subinstr(sponsors, "&", "and", 5000)
 replace sponsors=subinstr(sponsors, "~", ",", 5000)
+
+***Try to scrape wikipedia entry for MPS***
+file open test using "https://en.wikipedia.org/wiki/Mont_Pelerin_Society", read
+file read test line
+while r(eof)==0 {
+	di"'line'"
+	///Do something with the input
+	file read test line
+}
+
+***Try different, seemingly simpler method first
+set obs 1
+gen mps_pp = fileread("https://en.wikipedia.org/wiki/Mont_Pelerin_Society#Past_presidents")
+
+***MPS dummy and, if known, year joined***
+gen MPS=0
+replace MPS=1 if regexm(
+
+
+
 
 ***Academic years; single terms, summer, winter etc. Start with extracting all instances of "and" i.e. "Summer and Fall 2000" - otherwise we will erroneously delete/confuse the terms.. Then replace these with ""
 rename academicyear fundingyear
@@ -113,7 +138,10 @@ replace fundingyear=regexr(fundingyear,"Winter and Spring [0-9][0-9][0-9][0-9]",
 replace abnormaltimeperiod3=abnormaltimeperiod3 + "," + regexs(0) if regexm(fundingyear,"Winter and Spring [0-9][0-9][0-9][0-9]")==1
 replace fundingyear=regexr(fundingyear,"Winter and Spring [0-9][0-9][0-9][0-9]","")
 
-sort abnormaltimeperiod
+gsort -abnormaltimeperiod
+
+***
+*COME BACK AND SORT OUT THE SUMMER AND FALL terms
 ***Note to self - appears like all the "and" observations are dealt with at this point. With "and" terms extracted -- do the same for odd semesters(oddsem) such as "Fall 2000"
 gen oddsem=""
 gen oddsem2=""
@@ -166,13 +194,46 @@ replace fundingyear=subinstr(fundingyear,"-","H2,",10)
 replace fundingyear=fundingyear + "H1" if regexm(fundingyear, "[0-9]")==1
 ***Looks good at this point but I haven't looked super closely - continuing with oddsem and abnormaltimeperiods(which btw was a terrible choice of variablename..)
 replace oddsem=oddsem + "H1" if regexm(oddsem, "Spring")==1
-replace oddsem=subinstr(oddsem,"Spring ","",5)
+replace oddsem=subinstr(oddsem,"Spring ","",.)
 replace oddsem2=oddsem2 + "H2" if regexm(oddsem2, "Fall")==1
-replace oddsem2=subinstr(oddsem2,"Fall ","",5)
-***some variables have multiple semesters, add H1/H2 before comma
-replace oddsem2=subinstr(oddsem2,",","H2,",5)
+replace oddsem2=subinstr(oddsem2,"Fall ","",.)
+
+***continuing with summer, winter, calendaryear as that appears to be where I left off in the past. Better commenting needed!
+*classifying summer as H2, Winter as H1, just to get an idea of funding over time. 
+replace oddsem3=oddsem3 + "H2" if regexm(oddsem3, "Summer")==1
+replace oddsem3=subinstr(oddsem3,"Summer ","",.)
+
+replace oddsem4=oddsem4 + "H1" if regexm(oddsem4, "Winter")==1
+replace oddsem4=subinstr(oddsem4,"Winter ","",.)
+
+*For oddsem5: trying to replace commas during process bc Calendar Year means both H1 and H2, thus previous order seems to get all messed up
+replace oddsem5=subinstr(oddsem5,"Calendar Year ","",.)
+
+*further split oddsem5 to avoid stumbling on the multiple year issue
+split oddsem5, gen(oddsem5_) parse(",")
+replace oddsem5_1=oddsem5_1 + "H1" if regexm(oddsem5_1, "[0-9]")==1
+replace oddsem5_1=oddsem5_1 + "," + oddsem5_1 + "H2" if regexm(oddsem5_1, "[0-9]")==1
+replace oddsem5_1=subinstr(oddsem5_1,"H1H2","H2",.)
+
+replace oddsem5_2=oddsem5_2 + "H1" if regexm(oddsem5_2, "[0-9]")==1
+replace oddsem5_2=oddsem5_2 + "," + oddsem5_2 + "H2" if regexm(oddsem5_2, "[0-9]")==1
+replace oddsem5_2=subinstr(oddsem5_2,"H1H2","H2",.)
+
+***Seems like it worked!! end this fix continue to clean multiple observations within each of these special cases
+
+***some observations have multiple semesters, add H1/H2 before comma
+replace oddsem2=subinstr(oddsem2,",","H2,",.) if regexm(oddsem2, "[0-9]")==1
+
+***Trying out monthly academicyears...Here comes a head ache?
+gen myear="2000H1"
+replace myear=subinstr(myear,"H1","m2",.)
+replace myear_1=subinstr(myear,"m2","m3",.)
 
 
+
+
+
+***Does this belong?***
 gen academicyear=fundingyear if regexm(fundingyear, "[a-zA-Z]")==0
 replace academicyear=subinstr(academicyear, "-", "H2 ", 5000)
 replace academicyear=subinstr(academicyear, ",", "H1 ", 5000)
@@ -335,8 +396,14 @@ replace abnormaltimeperiod=regexs(3) if regexm(fundingyear,"Winter and Spring [0
 
 
 
-***Rename some variable
+***Rename some variable ///What's going on here???
 rename gi_country country
+
+***gen  MPS sponsors during 50's***
+gen MPS=0
+replace MPS=1 if regexm(sponsors, "Friedman|Hayek|
+
+
 
 
 ***Encode clean categorical variables***
