@@ -1,0 +1,186 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}21 Feb 2018, 16:34:06
+
+{com}. br if regexm(v1,"[0-9]{c -(}4{c )-}")==1
+
+. br if regexm(v1,"([0-9]{c -(}4{c )-})")==1
+
+. br if regexm(v1,"([0-9][0-9][0-9][0-9])")==1
+
+. br if regexm(v1,"([0-9][0-9][0-9][0-9])")==1
+
+. br if regexm(v1,"([0-9][0-9][0-9][0-9])")==1 & lifemember==1
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace yearentered=regexs(v1,"[0-9][0-9][0-9][0-9]",.) if lifemember==1
+{err}v1," invalid name
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace yearentered=regexs(v1,"[0-9][0-9][0-9][0-9]",.)==1 & if lifemember==1
+{err}v1," invalid name
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace yearentered=regexs(v1,"[0-9][0-9][0-9][0-9]",.) if lifemember==1
+{err}v1," invalid name
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace yearentered=regexs(v1,"[0-9][0-9][0-9][0-9]") if lifemember==1
+{err}v1," invalid name
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. help regexs
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace yearentered=regexr(v1,"[0-9][0-9][0-9][0-9]") if lifemember==1
+{err}invalid syntax
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace yearentered=regexs(0) if regexm(v1,"[0-9][0-9][0-9][0-9]")==1
+{txt}(123 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. br
+
+. format v1, s%50
+{err}options not allowed
+{txt}{search r(101), local:r(101);}
+
+{com}. format v1 s%50
+{err}variable {bf}s{sf} not found
+{txt}{search r(111), local:r(111);}
+
+{com}. format v1 %50s
+
+. format v1 %80s
+
+. format v1 %100s
+
+. format v1 %120s
+
+. destring yearentered, replace
+{txt}yearentered: all characters numeric; {res}replaced {txt}as {res}int
+{txt}(55 missing values generated)
+{res}
+{com}. gen yearentered2=substr(v1,-5,.) if regexm(v1,"[0-9],$")==1
+{txt}(178 missing values generated)
+
+{com}. destring yearentered2, replace ignore(`","') force
+{txt}yearentered2: character{res} ,{txt} removed; {res}replaced {txt}as {res}int
+{txt}(178 missing values generated)
+{res}
+{com}. drop yearentered2
+
+. help subinstr
+
+. help regexr
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace v1=subinstr(v1,",","",-1)
+{txt}(0 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. help substr
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace v1=substr(v1,",","",-1)
+{err}invalid syntax
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace v1=substr(v1,",",-1)
+{err}type mismatch
+{txt}{search r(109), local:r(109);}
+
+end of do-file
+
+{search r(109), local:r(109);}
+
+{com}. help trim
+
+. ssc install trim()
+{txt}{err}invalid syntax
+{txt}{search r(101), local:r(101);}
+
+{com}. help trim()
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. ***MPS Directory
+. clear all
+{res}{txt}
+{com}. 
+. *log using 
+. 
+. import delimited "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\Mont Pelerin Society Directory 2010.txt", delimiter("  ", asstring) ///Importing everything to one variable--> parse
+> 
+{res}{text}(1 var, 597 obs)
+
+{com}. *** Generate variables that easily subtracted from string. 
+. gen lifemember=0
+{txt}
+{com}. replace lifemember=1 if regexm(v1, "Life Member")==1
+{txt}(121 real changes made)
+
+{com}. 
+. gen yearentered=substr(v1,-5,.) if regexm(v1,"[0-9],$")==1
+{txt}(597 missing values generated)
+
+{com}. replace yearentered=subinstr(yearentered,",","",.)
+{txt}(0 real changes made)
+
+{com}. 
+. *Now extract entering years for life members
+. replace yearentered=regexs(0) if regexm(v1,"[0-9][0-9][0-9][0-9]")==1
+{txt}variable {bf}yearentered{sf} was {bf}{res}str1{sf}{txt} now {bf}{res}str4{sf}
+{txt}(542 real changes made)
+
+{com}. destring yearentered, replace ignore(`","') force ///This is easier than subinstr!
+
+{txt}end of do-file
+
+{com}. 
