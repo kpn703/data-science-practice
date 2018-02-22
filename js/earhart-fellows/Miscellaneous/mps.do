@@ -31,10 +31,12 @@ split v1, generate(name_) parse(,)
 *gen categorical society variables
 gen fmrpres=0
 replace fmrpres=1 if regexm(v1, "'*'")==1
+replace fmrpres=1 if regexm(name_1, "Hayek|Röpke|Jewkes|Lutz|Leoni|Schmölders|Milton Friedman|Shenfield|Leduc|Stigler|Ayau|Nishiyama|High Cross|Buchanan|Giersch|Martino|Becker|Hartwell|Salin|Feulner|Diaz|Watrin|Liggio|Curzon-Price|Lindsay|Deepak Lal|Minogue|Meltzer")==1
 gen foundingmember=0
 replace foundingmember=1 if regexm(name_1,"Hayek|Milton Friedman|Stigler|Ropke|Röpke|Mises|Rappard|Robbins|Allais|Brandt|Popper")==1
 
-
+gen inaugural_conference=0
+replace inaugural_conference=1 if regexm(name_1,"Allais|Antoni|Barth|Brandt|Cornuelle|Davenport|Dennison|Aaron Director|Walter Eucken|Milton Friedman|Gideonse|Graham|Harper|Hayek|Hazlitt|Hoff|Hunold|Jouvenel|Iversen|Jewkes|Knight|Lovinfosse|Machlup|Miller|Mises|Morley|Polanyi|Popper|Rappard|Read|Révay|Robbins|Röpke|Stigler|Tingsten|Trévoux|Watts|Wedgwood")==1
 
 subinstr(name_1,"Dr.|Mr.|Ms.|Mrs.|Professor|Monsieur|Hon. Sir|Honorable|Rt. Hon. Dr. Sir |Prof.|Ambassador|The Honorable|Hon.|Judge|Dipl.|Reverend|The Rt. Hon. The Lord Howe Of Aberavon","",.)==1
 "Dr.|Mr.|Ms.|Mrs.|^(Professor)|Monsieur|Hon. Sir|Honorable|Rt. Hon. Dr. Sir |Prof.|Ambassador|The Honorable|^(Hon.)|Judge|Dipl.|Reverend|The Rt. Hon. The Lord Howe Of Aberavon","",.)
@@ -76,5 +78,5 @@ rename (
 
 
 *replace yearentered=substr(v1,-5,.) if regexm(v1,"[0-9],$")==1
-export excel using "mps10", replace
-save "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps10.dta", replace
+export excel using "mps", replace
+save "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps.dta", replace

@@ -306,6 +306,13 @@ replace semester8=ay_42 if ay_42!=""
 replace semester9=ay_51 if ay_51!=""
 replace semester10=ay_52 if ay_52!=""
 
+***Gen temporary MPS variable
+gen notmps_preliminary=0
+replace notmps_preliminary=1 if regexm(sponsors,"Weimer|Gaumnitz|Boddy|Viner|Paton|Kendrick|Lamborn|Schwenning|Eckelberry|Wolman|Briefs|Ross|Muth|Roegen|McCracken")==1
+
+
+
+
 ***Match fellows and sponsors to see who went from being fellow to sponsor***///THIS DIDN'T WORK -TRYING AGAIN WITH RECLINK
 split name, gen(name_match) parse(",")
 gen name_match=name_match2 + " " + name_match1
@@ -319,7 +326,6 @@ gen id=_n
 replace name_match=lower(name_match)
 reclink name_match using "C:\Users\Markus\Desktop\sponsors.dta", idmaster(id) idusing(B) uvarlist(A) gen(f2s)
 reclink name_match using "C:\Users\Markus\Desktop\sponsors.dta", idmaster(id) idusing(B) uvarlist(A) gen(f2s2)
-
 
 ***Trying with instructions from Steve Smela
 capture drop WasSponsor
