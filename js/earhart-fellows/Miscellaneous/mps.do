@@ -72,7 +72,7 @@ replace name_1-name_7=="" if regexm(name_1-name_7,"[0-9][0-9][0-9][0-9]")
 rename name_2 title
 */
 
-
+rename (
 
 
 *replace yearentered=substr(v1,-5,.) if regexm(v1,"[0-9],$")==1
