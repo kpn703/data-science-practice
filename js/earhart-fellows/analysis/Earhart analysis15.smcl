@@ -1,0 +1,989 @@
+{smcl}
+{txt}{sf}{ul off}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\Earhart analysis15.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}21 Feb 2018, 10:53:23
+{txt}
+{com}. 
+{txt}end of do-file
+
+{com}. br
+
+. clear
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD30e4_000000.tmp"
+{txt}
+{com}. clear all
+{res}{txt}
+{com}. set more off
+{txt}
+{com}. 
+. import delimited "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\ordered-output.csv", clear
+{res}{text}(22 vars, 3,464 obs)
+
+{com}. save "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\E cleaning and analysis.dta", replace
+{txt}file C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\E cleaning and analysis.dta saved
+
+{com}. ***
+. 
+. ***Start here unless you want to do the entire process from the CSV file.
+. ***ALWAYS START BY STARTING THE LOG***
+. *log using "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\Earhart analysis.smcl" ///First time
+> log using "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\E cleaning and analysis.smcl", append name(main)
+. 
+. use "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\E cleaning and analysis.dta", clear
+{txt}
+{com}. ***Format 
+. format %25s name academicyear graduateinstitution areaofstudy sponsors emailaddress validemailaddress deceased
+{txt}
+{com}. format %15s  recipientgender recipientgenderizedname simplesponsorgender simplesponsorgenderizedname entryid completiondegree mailingaddress emailaddress validemailaddress deceased
+{txt}
+{com}. format %4.0g recipientgenderprobability 
+{txt}
+{com}. drop graduateinstitutioninvalidatedli invalidprefixareaofstudy invalidpostfixareaofstudy
+{txt}
+{com}. 
+. ***Rename Graduateinstitution==gi and fix Graduateinstitution Edgecases: gi_subcampus, gi_country, gi_1/gi_2 , weird gi_1 and gi_2 cases***
+. split graduateinstitution, generate(gi) parse(~) 
+{res}variables created as string: 
+{txt}{col 1}gi1{col 6}gi2
+
+{com}. rename gi1 gi
+{res}{txt}
+{com}. gen gi_country=gi2 if regexm(gi2, "Switzerland|United Kingdom|Canada|Mexico|Israel|Germany|France|Belgium")==1
+{txt}(3,393 missing values generated)
+
+{com}. replace gi_country="USA" if regexm(gi2, "Switzerland|United Kingdom|Canada|Mexico|Israel|Germany|France|Belgium")==0
+{txt}(3,393 real changes made)
+
+{com}. gen gi_subcampus=gi2 if regexm(gi2, "Switzerland|United Kingdom|Canada|Mexico|Israel|Germany|France|Belgium")==0
+{txt}(3,178 missing values generated)
+
+{com}. drop gi2
+{txt}
+{com}. order name gi academicyear, first
+{txt}
+{com}. order graduateinstitution entryid gi, last
+{txt}
+{com}. *gi_1/gi_2*
+. split(gi), gen(gi_) parse(/)
+{res}variables created as string: 
+{txt}{col 1}gi_1{col 7}gi_2
+
+{com}. format gi_1 gi_2 %30s
+{txt}
+{com}. 
+. ***institutions that are the same but have different names/have different names but are the same***
+. replace gi_1="London School of Economics" if regexm(gi_1, "London School of economics")==1
+{txt}(2 real changes made)
+
+{com}. replace gi_1="École des Hautes Etudes en Sciences Sociales" if regexm(gi_1, "Ecol")==1
+{txt}(2 real changes made)
+
+{com}. replace gi_1="Claremont Graduate University" if regexm(gi_1, "Claremont Graduate School")==1
+{txt}(96 real changes made)
+
+{com}. replace gi_1="Claremont McKenna College" if regexm(gi_1, "Claremont Men's College")==1
+{txt}(6 real changes made)
+
+{com}. replace gi_1="Georgetown University" if regexm(gi_1, "Georgetown University")==1 
+{txt}(1 real change made)
+
+{com}. replace gi_1="Virginia Polytechnic Institute & State University" if regexm(gi_1, "Virginia Polytechnic Institute")==1
+{txt}(1 real change made)
+
+{com}. replace gi_1="Yale University" if regexm(gi_1, "Yale Divinity School")==1
+{txt}(2 real changes made)
+
+{com}. replace gi_1="Missouri State University" if regexm(gi_1, "Southwest Missouri State University")==1
+{txt}(10 real changes made)
+
+{com}. replace gi_1="University of Cambridge" if regexm(gi_1, "Cambridge University")==1
+{txt}(2 real changes made)
+
+{com}. replace gi_1="University of Notre Dame" if regexm(gi_1, "Notre Dame University")==1
+{txt}(3 real changes made)
+
+{com}. replace gi_1="University of St. Andrews" if regexm(gi_1, "St. Andrews University")==1
+{txt}(1 real change made)
+
+{com}. replace gi_1="University of Oxford" if regexm(gi_1, "Oxford University")==1
+{txt}(1 real change made)
+
+{com}. 
+. ***///If we truly care about peer effects maybe undergrad institutions/women's only schools needs to be categorized..?
+. replace gi_1="Harvard University" if regexm(gi_1, "Harvard|Radcliffe")==1 
+{txt}(2 real changes made)
+
+{com}. replace gi_1="Columbia University" if regexm(gi_1, "Columbia College")==1 
+{txt}(1 real change made)
+
+{com}. 
+. ***Edgecases where we should test whether & document that our assumptions don't influence the results: 
+. replace gi_1="Michigan State University" if regexm(gi_1, "Kenyon College and Michigan State University")==1
+{txt}(1 real change made)
+
+{com}. replace gi_2="Kenyon College" if regexm(graduateinstitution, "Kenyon College and Michigan State University")==1
+{txt}(1 real change made)
+
+{com}. replace gi_1="Indiana University" if regexm(gi_1, "University of Indiana")==1
+{txt}(1 real change made)
+
+{com}. 
+. *replace gi_1="Princeton University" if regexm(gi_1, "Princeton Theological Seminary")==1 ///Not the same according to one comment... Make sure not influential to results...
+> 
+. ***Stringgroup to see whether typo's exist in gi_1
+. *strgroup gi_1, gen(gi_grouped) threshold(.01) ///Not needed anymore?
+> 
+. ***Clean/match typo's etc. among sponsors
+. strgroup sponsors, gen(sponsors_grouped) threshold(0.01)
+{res}{it:sponsors} contains duplicate values. Remove them to speed up calculations.
+{txt}
+{com}. codebook sponsors_grouped
+
+{txt}{hline}
+{res}sponsors_grouped{right:(unlabeled)}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}long{txt})
+
+{col 18}range:  [{res}1{txt},{res}373{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}373{col 51}{txt}missing .:  {res}0{txt}/{res}3,464
+
+{txt}{col 19}mean:{res}{col 26} 121.752
+{txt}{col 15}std. dev:{res}{col 26}  89.352
+
+{txt}{col 12}percentiles:{col 32}10%{col 42}25%{col 52}50%{col 62}75%{col 72}90%
+{res}{col 27}      17{col 37}      47{col 47}     105{col 57}     181{col 67}     261
+{txt}
+{com}. 
+. ***Clean typos in sponsors, substitute and for & --> by sponsors_grouped: tab sponsors
+. *replace sponsors="" if regexm(sponsors, "")==1
+. replace sponsors="Clifton L. Ganus Jr." if regexm(sponsors, "Clifton L. Gallus")==1
+{txt}(2 real changes made)
+
+{com}. replace sponsors="Christopher Bruell and Robert K. Faulkner" if regexm(sponsors, "Christopher Bruell and Robert K. Faulkners|Christopher Bruen and Robert K. Faulkner")==1
+{txt}(6 real changes made)
+
+{com}. replace sponsors="Edward C. Banfield" if regexm(sponsors, "Edward C. Bonfield")==1
+{txt}(2 real changes made)
+
+{com}. replace sponsors="Murray L. Weidenbaum" if regexm(sponsors, "Murray L. Weidenbaun")==1
+{txt}(1 real change made)
+
+{com}. replace sponsors="Deil S. Wright" if regexm(sponsors, "Dell S. Wright")==1
+{txt}(5 real changes made)
+
+{com}. replace sponsors="Daniel J. Elazar" if regexm(sponsors, "Daniel J. Elvar")==1
+{txt}(1 real change made)
+
+{com}. replace sponsors="E. Maynard Aris" if regexm(sponsors, "E. Maynard Eris")==1
+{txt}(1 real change made)
+
+{com}. replace sponsors="Roland F. Salmonson and James Don Edwards" if regexm(sponsors, "Roland E Salmonson and James Don Edwards")==1
+{txt}(1 real change made)
+
+{com}. replace sponsors="John J. DiIulio Jr." if regexm(sponsors, "John J. D")==1
+{txt}(2 real changes made)
+
+{com}. replace sponsors="G. Ellis Sandoz Jr." if regexm(sponsors, "G. Ellis Sandoz")==1
+{txt}(1 real change made)
+
+{com}. 
+. ***Subinstr inconsistent use of and/&,  
+. replace sponsors=subinstr(sponsors, "&", "and", 5000)
+{txt}(4 real changes made)
+
+{com}. replace sponsors=subinstr(sponsors, "~", ",", 5000)
+{txt}(5 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. codebook sponsors
+
+{txt}{hline}
+{res}sponsors{right:Sponsors}
+{txt}{hline}
+
+{col 19}type:  string ({res}str58{txt})
+
+{col 10}unique values:  {res}360{col 51}{txt}missing "":  {res}0{txt}/{res}3,464
+
+{txt}{col 15}examples:  {res}"Donald W. Treadgold"
+{col 26}"Hans F. Sennholz"
+{col 26}"Leland B. Yeager"
+{col 26}"Robert L. Pfaltzgraff Jr. and Richard H. Shultz Jr."
+
+{txt}{col 16}warning:  variable has embedded blanks
+
+{com}. tab sponsors
+
+                               {txt}Sponsors {c |}      Freq.     Percent        Cum.
+{hline 40}{c +}{hline 35}
+                            A. J. Meyer {c |}{res}          8        0.23        0.23
+{txt}                         A. James Meigs {c |}{res}          1        0.03        0.26
+{txt}                      A. Weyman Patrick {c |}{res}          4        0.12        0.38
+{txt}                      Alan Charles Kors {c |}{res}          5        0.14        0.52
+{txt}                            Alan Heslop {c |}{res}         13        0.38        0.89
+{txt}Alan N. Sabrosky and William R. Kintner {c |}{res}          2        0.06        0.95
+{txt}                        Albert H. Hobbs {c |}{res}          2        0.06        1.01
+{txt}                       Alex N. Dragnich {c |}{res}         15        0.43        1.44
+{txt}                         Alfred Buehler {c |}{res}          3        0.09        1.53
+{txt}                       Alfred de Grazia {c |}{res}         25        0.72        2.25
+{txt}                            Allan Bloom {c |}{res}         16        0.46        2.71
+{txt}                       Allan H. Meltzer {c |}{res}         18        0.52        3.23
+{txt}  Allan Meltzer and Robert E. Lucas Jr. {c |}{res}          2        0.06        3.29
+{txt}                     Anthony Costantino {c |}{res}          8        0.23        3.52
+{txt}                          Arleigh Burke {c |}{res}          7        0.20        3.72
+{txt}                     Arlen R. Hellwarth {c |}{res}          3        0.09        3.81
+{txt}                       Armen A. Alchian {c |}{res}         22        0.64        4.45
+{txt}                         Arnold Collery {c |}{res}          6        0.17        4.62
+{txt}Arthur F. Burns, George J. Stigler, a.. {c |}{res}          1        0.03        4.65
+{txt}                            Arthur Kemp {c |}{res}         11        0.32        4.97
+{txt}                       Arthur M. Melzer {c |}{res}         16        0.46        5.43
+{txt}                       Arthur M. Weimer {c |}{res}         15        0.43        5.86
+{txt}                         Arthur Sharron {c |}{res}          6        0.17        6.03
+{txt}                         Arthur Waldron {c |}{res}         13        0.38        6.41
+{txt}                          Attiat F. Ott {c |}{res}          6        0.17        6.58
+{txt}                      Barrie Richardson {c |}{res}          2        0.06        6.64
+{txt}                      Benjamin A. Rogge {c |}{res}         16        0.46        7.10
+{txt}                         Benjamin Klein {c |}{res}          7        0.20        7.30
+{txt}                     Bernard W. Sheehan {c |}{res}          6        0.17        7.48
+{txt}   Burton A. Weisbrod and W. Lee Hansen {c |}{res}         13        0.38        7.85
+{txt}                      C. Lowell Harriss {c |}{res}         26        0.75        8.60
+{txt}                            Carl Leiden {c |}{res}         12        0.35        8.95
+{txt}   Carl Leiden and James R. Steintrager {c |}{res}          6        0.17        9.12
+{txt}                   Catherine H. Zuckert {c |}{res}         10        0.29        9.41
+{txt}    Catherine H. and Michael P. Zuckert {c |}{res}         13        0.38        9.79
+{txt}                  Charles Cortez Abbott {c |}{res}          5        0.14        9.93
+{txt}                 Charles E. Butterworth {c |}{res}         19        0.55       10.48
+{txt}                      Charles E. Schutz {c |}{res}          3        0.09       10.57
+{txt}                  Charles Elmo Ferguson {c |}{res}          2        0.06       10.62
+{txt}                     Charles F. Haywood {c |}{res}          1        0.03       10.65
+{txt}                Charles L. Griswold Jr. {c |}{res}         21        0.61       11.26
+{txt}                     Charles R. Dechert {c |}{res}          1        0.03       11.29
+{txt}                      Charles R. Kesler {c |}{res}         13        0.38       11.66
+{txt}                     Charles S. Hyneman {c |}{res}         12        0.35       12.01
+{txt}Charles S. Hyneman and Gottfried Dietze {c |}{res}          1        0.03       12.04
+{txt}                     Chelcie C. Bosland {c |}{res}         11        0.32       12.36
+{txt}                       Chiaki Nishiyama {c |}{res}          3        0.09       12.44
+{txt}   Chiaki Nishiyama and Milton Friedman {c |}{res}          1        0.03       12.47
+{txt}Christopher Bruell and Robert K. Faul.. {c |}{res}         28        0.81       13.28
+{txt}                           Claes G. Ryn {c |}{res}         17        0.49       13.77
+{txt}                       Clare E. Griffin {c |}{res}          6        0.17       13.94
+{txt}                     Clarence Philbrook {c |}{res}          9        0.26       14.20
+{txt}                   Clifton L. Ganus Jr. {c |}{res}         12        0.35       14.55
+{txt}                        Clyde N. Wilson {c |}{res}          8        0.23       14.78
+{txt}                      Colin D. Campbell {c |}{res}          6        0.17       14.95
+{txt}                      Cotton M. Lindsay {c |}{res}         11        0.32       15.27
+{txt}                       Daniel J. Elazar {c |}{res}         15        0.43       15.70
+{txt}                       David B. Mustard {c |}{res}          4        0.12       15.82
+{txt}                     David I. Meiselman {c |}{res}         12        0.35       16.17
+{txt}                    David McCord Wright {c |}{res}         11        0.32       16.48
+{txt}                          David N. Rowe {c |}{res}          8        0.23       16.71
+{txt}                         David Schmidtz {c |}{res}         23        0.66       17.38
+{txt}                         Deil S. Wright {c |}{res}         26        0.75       18.13
+{txt}                          Desire Barath {c |}{res}          2        0.06       18.19
+{txt}                       Don J. Pearlberg {c |}{res}          1        0.03       18.22
+{txt}                          Don Paarlberg {c |}{res}          1        0.03       18.24
+{txt}                       Donald F. Gordon {c |}{res}          1        0.03       18.27
+{txt}                    Donald J. Boudreaux {c |}{res}         11        0.32       18.59
+{txt}                           Donald Kagan {c |}{res}          1        0.03       18.62
+{txt}                     Donald L. Kemmerer {c |}{res}         31        0.89       19.52
+{txt}      Donald Pruis and John Vanden Berg {c |}{res}          4        0.12       19.63
+{txt}                         Donald S. Lutz {c |}{res}          8        0.23       19.86
+{txt}                    Donald W. Treadgold {c |}{res}         24        0.69       20.55
+{txt}                          Dwight R. Lee {c |}{res}          4        0.12       20.67
+{txt}                     E. Christian Kopff {c |}{res}          2        0.06       20.73
+{txt}                        E. Maynard Aris {c |}{res}          8        0.23       20.96
+{txt}                     Earhart Foundation {c |}{res}         17        0.49       21.45
+{txt}                     Edward C. Banfield {c |}{res}          7        0.20       21.65
+{txt}                   Edward H. Chamberlin {c |}{res}          8        0.23       21.88
+{txt}                 Elizabeth Fox-Genovese {c |}{res}         12        0.35       22.23
+{txt}                     Ellen Frankel Paul {c |}{res}          6        0.17       22.40
+{txt}                       Ellis W. Lamborn {c |}{res}          3        0.09       22.49
+{txt}                          Emerson Henke {c |}{res}          7        0.20       22.69
+{txt}                          Eric Voegelin {c |}{res}          5        0.14       22.83
+{txt}     Eric Voegelin and Gerhart Niemeyer {c |}{res}          1        0.03       22.86
+{txt}                      Erwin A. Gaumnitz {c |}{res}         19        0.55       23.41
+{txt}                        Eugene McGregor {c |}{res}          1        0.03       23.44
+{txt}                   Ferdinand A. Hermens {c |}{res}          4        0.12       23.56
+{txt}                       Forrest McDonald {c |}{res}          4        0.12       23.67
+{txt}                        Francis Canavan {c |}{res}         17        0.49       24.16
+{txt}                      Francis G. Wilson {c |}{res}          3        0.09       24.25
+{txt}                       Francis M. Boddy {c |}{res}         18        0.52       24.77
+{txt}                         Francois Furet {c |}{res}          4        0.12       24.88
+{txt}                            Frank Grace {c |}{res}         10        0.29       25.17
+{txt}                          Franz Michael {c |}{res}          7        0.20       25.38
+{txt}                       Fred C. Robinson {c |}{res}          5        0.14       25.52
+{txt}                     Fred D. Miller Jr. {c |}{res}         25        0.72       26.24
+{txt}                          Fred R. Glahe {c |}{res}         10        0.29       26.53
+{txt}                  Frederick A. Bradford {c |}{res}          1        0.03       26.56
+{txt}            Frederick R. Warren-Boulton {c |}{res}          2        0.06       26.62
+{txt}                    Frederick S. Morton {c |}{res}          1        0.03       26.65
+{txt}                     Friedrich A. Hayek {c |}{res}         11        0.32       26.96
+{txt}                          Fritz Machlup {c |}{res}         33        0.95       27.92
+{txt}                        G. Carl Wiegand {c |}{res}          4        0.12       28.03
+{txt}     G. Carl Wiegand and Harry V. Jaffa {c |}{res}          1        0.03       28.06
+{txt}                    G. Ellis Sandoz Jr. {c |}{res}         26        0.75       28.81
+{txt}                       G. T. Schwenning {c |}{res}          7        0.20       29.01
+{txt}                       G. Warren Nutter {c |}{res}         40        1.15       30.17
+{txt}  G. Warren Nutter and Chiaki Nishiyama {c |}{res}          1        0.03       30.20
+{txt} G. Warren Nutter and James M. Buchanan {c |}{res}         15        0.43       30.63
+{txt}Gardner M. Jones and Roland F. Salmon.. {c |}{res}          2        0.06       30.69
+{txt}                          Gary D. Glenn {c |}{res}          3        0.09       30.77
+{txt}                         Gary S. Becker {c |}{res}         42        1.21       31.99
+{txt}                     George A. Panichas {c |}{res}          3        0.09       32.07
+{txt}                    George C. Roche III {c |}{res}          4        0.12       32.19
+{txt}                       George Grassmuck {c |}{res}         22        0.64       32.82
+{txt}                      George J. Stigler {c |}{res}         29        0.84       33.66
+{txt}       George J. Stigler and Leo Wolman {c |}{res}          2        0.06       33.72
+{txt}                      George K. Romoser {c |}{res}          1        0.03       33.75
+{txt}                      George M. Wattles {c |}{res}          2        0.06       33.80
+{txt}                        George W. Carey {c |}{res}         13        0.38       34.18
+{txt}                   George W. Eckelberry {c |}{res}          9        0.26       34.44
+{txt}                     George W. Stocking {c |}{res}          6        0.17       34.61
+{txt}                       Gerhart Niemeyer {c |}{res}         28        0.81       35.42
+{txt}      Glen E. Thurow and Thomas G. West {c |}{res}         24        0.69       36.11
+{txt}                        Goetz A. Briefs {c |}{res}         10        0.29       36.40
+{txt}                         Gordon Tullock {c |}{res}         13        0.38       36.78
+{txt}                       Gottfried Dietze {c |}{res}         15        0.43       37.21
+{txt}                     Gottfried Haberler {c |}{res}         22        0.64       37.85
+{txt} Gottfried Haberler and Procter Thomson {c |}{res}          1        0.03       37.88
+{txt}Gottfried Haberler and William H. Cha.. {c |}{res}          2        0.06       37.93
+{txt}                    Grace Ellen Goodell {c |}{res}          2        0.06       37.99
+{txt}                         H. Gregg Lewis {c |}{res}         23        0.66       38.65
+{txt}     H. Gregg Lewis and Milton Friedman {c |}{res}         19        0.55       39.20
+{txt}H. Gregg Lewis, Frank Knight, and Mil.. {c |}{res}          3        0.09       39.29
+{txt}                     Hamilton A.R. Gibb {c |}{res}          1        0.03       39.32
+{txt}                       Hans F. Sennholz {c |}{res}         26        0.75       40.07
+{txt}                    Harlan L. McCracken {c |}{res}          8        0.23       40.30
+{txt}                         Harold Demsetz {c |}{res}          4        0.12       40.42
+{txt}                      Harold M. Heckman {c |}{res}         14        0.40       40.82
+{txt}                         Harold W. Rood {c |}{res}         25        0.72       41.54
+{txt}      Harry J. Rehn and G. Carl Wiegand {c |}{res}          3        0.09       41.63
+{txt}                          Harry M. Clor {c |}{res}          1        0.03       41.66
+{txt}                         Harry V. Jaffa {c |}{res}         41        1.18       42.84
+{txt}                Harvey C. Mansfield Jr. {c |}{res}         29        0.84       43.68
+{txt}                  Hendrik S. Houthakker {c |}{res}          8        0.23       43.91
+{txt}      Henry De Wit and John Vanden Berg {c |}{res}          1        0.03       43.94
+{txt}                         Henry G. Manne {c |}{res}          1        0.03       43.97
+{txt}                        Henry W. Briefs {c |}{res}         22        0.64       44.60
+{txt}                     Herbert J. Storing {c |}{res}          3        0.09       44.69
+{txt}                            Herman Belz {c |}{res}          7        0.20       44.89
+{txt}                      Howard H. Peckham {c |}{res}          1        0.03       44.92
+{txt}                     Howard R. Penniman {c |}{res}         29        0.84       45.76
+{txt}                        Howard S. Ellis {c |}{res}         16        0.46       46.22
+{txt}                   Israel Mayer Kirzner {c |}{res}         10        0.29       46.51
+{txt}                    J. Clayburn LaForce {c |}{res}          6        0.17       46.68
+{txt}                          J. G. Mehling {c |}{res}          1        0.03       46.71
+{txt}                         J. Rufus Fears {c |}{res}          3        0.09       46.80
+{txt}                       Jack Hirshleifer {c |}{res}         23        0.66       47.46
+{txt}                           Jacob Mincer {c |}{res}          2        0.06       47.52
+{txt}                            Jacob Viner {c |}{res}          4        0.12       47.63
+{txt}                   James A. Steintrager {c |}{res}          5        0.14       47.78
+{txt}                    James B. Meriwether {c |}{res}          2        0.06       47.83
+{txt}                      James Don Edwards {c |}{res}          3        0.09       47.92
+{txt}James Don Edwards and Roland F. Salmo.. {c |}{res}          1        0.03       47.95
+{txt} James Don Edwards and William A. Paton {c |}{res}          1        0.03       47.98
+{txt} James Don Edwards and William Huizingh {c |}{res}          1        0.03       48.01
+{txt}                     James E. Dougherty {c |}{res}          2        0.06       48.07
+{txt}James F. McCarley and Charles E. Schutz {c |}{res}          1        0.03       48.09
+{txt}                       James K. Pollock {c |}{res}          3        0.09       48.18
+{txt}                      James M. Buchanan {c |}{res}         36        1.04       49.22
+{txt}                        James Q. Wilson {c |}{res}          9        0.26       49.48
+{txt}                    James R. Stoner Jr. {c |}{res}          8        0.23       49.71
+{txt}                       James S. Coleman {c |}{res}          8        0.23       49.94
+{txt}                        James V. Schall {c |}{res}          2        0.06       50.00
+{txt}                  James Washington Bell {c |}{res}          5        0.14       50.14
+{txt}James Washington Bell, John V. Van Si.. {c |}{res}          1        0.03       50.17
+{txt}                      Janusz K. Zawodny {c |}{res}         15        0.43       50.61
+{txt}               Jeane Jordan Kirkpatrick {c |}{res}          1        0.03       50.64
+{txt}                     Jerome W. Milliman {c |}{res}          4        0.12       50.75
+{txt}                       Jerry Weinberger {c |}{res}         14        0.40       51.15
+{txt}              Joan Wylie and J. R. Hall {c |}{res}          1        0.03       51.18
+{txt}                          John E. Alvis {c |}{res}         29        0.84       52.02
+{txt}    John E. Champion and Homer A. Black {c |}{res}          5        0.14       52.17
+{txt}                      John H. Hallowell {c |}{res}          3        0.09       52.25
+{txt}                          John H. Moore {c |}{res}          2        0.06       52.31
+{txt}                          John J. Agria {c |}{res}          3        0.09       52.40
+{txt}                    John J. DiIulio Jr. {c |}{res}         10        0.29       52.68
+{txt}                     John V. Van Sickle {c |}{res}         12        0.35       53.03
+{txt}John V. Van Sickle and Arthur M. Weimer {c |}{res}          1        0.03       53.06
+{txt}John V. Van Sickle and Stephen J. Ton.. {c |}{res}          1        0.03       53.09
+{txt}                       John Vanden Berg {c |}{res}          1        0.03       53.12
+{txt}   John Vanden Berg and Donald E. Pruis {c |}{res}          2        0.06       53.18
+{txt}                         Joseph Cropsey {c |}{res}         39        1.13       54.30
+{txt}                       Joseph Hamburger {c |}{res}          2        0.06       54.36
+{txt}                     Joseph J. Spengler {c |}{res}         22        0.64       54.99
+{txt}                        Joshua Mitchell {c |}{res}          5        0.14       55.14
+{txt}                        Karen I. Vaughn {c |}{res}          4        0.12       55.25
+{txt}                      Karl A. Wittfogel {c |}{res}          7        0.20       55.46
+{txt}                            Karl Brandt {c |}{res}          6        0.17       55.63
+{txt}                           Karl Brunner {c |}{res}         30        0.87       56.50
+{txt}                      Kenneth Colegrove {c |}{res}          3        0.09       56.58
+{txt}                     Kenneth G. Elzinga {c |}{res}          2        0.06       56.64
+{txt}                    Kenneth W. Thompson {c |}{res}         23        0.66       57.30
+{txt}                         Klaus H. Wolff {c |}{res}          4        0.12       57.42
+{txt}                         Kurt L. London {c |}{res}          7        0.20       57.62
+{txt}                          Larry Arnhart {c |}{res}          1        0.03       57.65
+{txt}        Larry Arnhart and Gary D. Glenn {c |}{res}          7        0.20       57.85
+{txt}                        Larry T. Wimmer {c |}{res}         19        0.55       58.40
+{txt}Larry T. Wimmer and B. Delworth Gardner {c |}{res}         11        0.32       58.72
+{txt}                      Laurence M. Gould {c |}{res}          1        0.03       58.75
+{txt}                       Lawrence M. Mead {c |}{res}          4        0.12       58.86
+{txt}                    Lee Robert Johnston {c |}{res}          2        0.06       58.92
+{txt}                       Leland B. Yeager {c |}{res}         42        1.21       60.13
+{txt}                 Leo Paul S. de Alvarez {c |}{res}         30        0.87       61.00
+{txt}                            Leo Schmidt {c |}{res}          1        0.03       61.03
+{txt}                            Leo Strauss {c |}{res}         17        0.49       61.52
+{txt}                             Leo Wolman {c |}{res}          2        0.06       61.58
+{txt}                         Lester B. Lave {c |}{res}          5        0.14       61.72
+{txt}                       Louis M. Spadaro {c |}{res}          4        0.12       61.84
+{txt}                       Ludwig von Mises {c |}{res}          5        0.14       61.98
+{txt}                       M. Bruce Johnson {c |}{res}         12        0.35       62.33
+{txt}                         M. H. Waterman {c |}{res}          1        0.03       62.36
+{txt}                      M. Richard Zinman {c |}{res}         17        0.49       62.85
+{txt}                      M. Slade Kendrick {c |}{res}          8        0.23       63.08
+{txt}                             Marc Landy {c |}{res}         17        0.49       63.57
+{txt}             Marina von Neumann Whitman {c |}{res}          1        0.03       63.60
+{txt}                         Mario J. Rizzo {c |}{res}          5        0.14       63.74
+{txt}                           Mark N. Katz {c |}{res}          4        0.12       63.86
+{txt}                           Mark Perlman {c |}{res}          3        0.09       63.94
+{txt}                    Marshall R. Colberg {c |}{res}         12        0.35       64.29
+{txt}                         Martin Diamond {c |}{res}          9        0.26       64.55
+{txt}                        Mary P. Nichols {c |}{res}         21        0.61       65.16
+{txt}    Mary P. Nichols and Francis Canavan {c |}{res}          2        0.06       65.21
+{txt}                     Melvin E. Bradford {c |}{res}          3        0.09       65.30
+{txt}                     Merrill K. Bennett {c |}{res}         11        0.32       65.62
+{txt}                Michael Allen Gillespie {c |}{res}         22        0.64       66.25
+{txt}                          Michael Davis {c |}{res}         11        0.32       66.57
+{txt}                     Michael P. Zuckert {c |}{res}         11        0.32       66.89
+{txt}                           Miller Upton {c |}{res}          1        0.03       66.92
+{txt}                        Milton Friedman {c |}{res}         16        0.46       67.38
+{txt}     Milton Friedman and H. Gregg Lewis {c |}{res}          4        0.12       67.49
+{txt}                       Morton J. Frisch {c |}{res}         19        0.55       68.04
+{txt}                   Murray L. Weidenbaum {c |}{res}         15        0.43       68.48
+{txt}                       Musa Y. Hussayni {c |}{res}          3        0.09       68.56
+{txt}                          Nathan Tarcov {c |}{res}         21        0.61       69.17
+{txt}                       Nicholas Capaldi {c |}{res}          5        0.14       69.31
+{txt}              Nicholas Georgescu-Roegen {c |}{res}         18        0.52       69.83
+{txt}Nicholas Georgescu-Roegen and George .. {c |}{res}          3        0.09       69.92
+{txt}                       Noel B. Reynolds {c |}{res}         14        0.40       70.32
+{txt}                      Nolan E. Williams {c |}{res}         15        0.43       70.76
+{txt}                         Norma Thompson {c |}{res}          4        0.12       70.87
+{txt}                     Oswald H. Brownlee {c |}{res}          5        0.14       71.02
+{txt}                         Othel J. Curry {c |}{res}          2        0.06       71.07
+{txt}                        P. Dean Russell {c |}{res}          4        0.12       71.19
+{txt}                      Patrick J. Deneen {c |}{res}          8        0.23       71.42
+{txt}                         Paul A. Cantor {c |}{res}          1        0.03       71.45
+{txt}                           Paul A. Rahe {c |}{res}          2        0.06       71.51
+{txt}                      Paul B. Denlinger {c |}{res}          5        0.14       71.65
+{txt}                      Paul E. Gottfried {c |}{res}          1        0.03       71.68
+{txt}                            Paul Garner {c |}{res}          8        0.23       71.91
+{txt}                             Paul Heyne {c |}{res}          6        0.17       72.08
+{txt}                          Paul L. Adams {c |}{res}          1        0.03       72.11
+{txt}                      Paul W. McCracken {c |}{res}         16        0.46       72.58
+{txt}                       Peter J. Boettke {c |}{res}         13        0.38       72.95
+{txt}                        Peter L. Berger {c |}{res}         26        0.75       73.70
+{txt}                        Procter Thomson {c |}{res}          7        0.20       73.90
+{txt}                       R. Barry Farrell {c |}{res}         21        0.61       74.51
+{txt}                     Raymond W. Coleman {c |}{res}          2        0.06       74.57
+{txt}                       Reginald D. Lang {c |}{res}          7        0.20       74.77
+{txt}                       Richard F. Staar {c |}{res}          3        0.09       74.86
+{txt}                  Richard H. Shultz Jr. {c |}{res}         17        0.49       75.35
+{txt}                      Richard L. Walker {c |}{res}         22        0.64       75.98
+{txt}           Richard Muth and Yale Brozen {c |}{res}          5        0.14       76.13
+{txt}                  Richard W. Richardson {c |}{res}          1        0.03       76.15
+{txt}                       Robert B. Pippin {c |}{res}         13        0.38       76.53
+{txt}                         Robert D. Haun {c |}{res}          5        0.14       76.67
+{txt}                    Robert E. Lucas Jr. {c |}{res}         14        0.40       77.08
+{txt}                       Robert E. Pickup {c |}{res}          3        0.09       77.17
+{txt}                       Robert F. Tamura {c |}{res}          4        0.12       77.28
+{txt}                     Robert G. Caldwell {c |}{res}          7        0.20       77.48
+{txt}                      Robert H. Horwitz {c |}{res}         12        0.35       77.83
+{txt}                     Robert K. Faulkner {c |}{res}          8        0.23       78.06
+{txt}                      Robert L. Bunting {c |}{res}          9        0.26       78.32
+{txt}              Robert L. Pfaltzgraff Jr. {c |}{res}         49        1.41       79.73
+{txt}Robert L. Pfaltzgraff Jr. and Richard.. {c |}{res}         10        0.29       80.02
+{txt}                      Robert M. Slusser {c |}{res}          5        0.14       80.17
+{txt}                       Robert P. George {c |}{res}         19        0.55       80.72
+{txt}                       Robert Scigliano {c |}{res}          8        0.23       80.95
+{txt}   Robert Scigliano and David Lowenthal {c |}{res}         15        0.43       81.38
+{txt}Roland F. Salmonson and James Don Edw.. {c |}{res}          4        0.12       81.50
+{txt}                       Roland N. McKean {c |}{res}         54        1.56       83.05
+{txt}  Roland N. McKean and Leland B. Yeager {c |}{res}          3        0.09       83.14
+{txt}                        Ronald H. Coase {c |}{res}          6        0.17       83.31
+{txt}                          Ross M. Lence {c |}{res}          7        0.20       83.52
+{txt}       Ross M. Lence and Donald S. Lutz {c |}{res}          2        0.06       83.57
+{txt}                      Russell A. Fraser {c |}{res}          1        0.03       83.60
+{txt}                           Russell Kirk {c |}{res}          1        0.03       83.63
+{txt}                          Ruth W. Grant {c |}{res}         20        0.58       84.21
+{txt}                     S. Charles Maurice {c |}{res}          6        0.17       84.38
+{txt}                  Seymour Martin Lipset {c |}{res}          1        0.03       84.41
+{txt}                       Simon Rottenberg {c |}{res}          7        0.20       84.61
+{txt}   Simon Rottenberg and Vernon L. Smith {c |}{res}          1        0.03       84.64
+{txt}                       Stanley H. Rosen {c |}{res}         10        0.29       84.93
+{txt}                          Stanley Parry {c |}{res}          6        0.17       85.10
+{txt}     Stanley Parry and Gerhart Niemeyer {c |}{res}          1        0.03       85.13
+{txt}                      Stefan T. Possony {c |}{res}          6        0.17       85.31
+{txt}                     Stephan Thernstrom {c |}{res}          1        0.03       85.33
+{txt}                    Stephen A. McKnight {c |}{res}          1        0.03       85.36
+{txt}                      Stephen J. Tonsor {c |}{res}         35        1.01       86.37
+{txt}                  Stephen M. DuBrul Jr. {c |}{res}          6        0.17       86.55
+{txt}                        Steven B. Smith {c |}{res}         14        0.40       86.95
+{txt}                         Susan M. Shell {c |}{res}         10        0.29       87.24
+{txt}                      Svetozar Pejovich {c |}{res}          2        0.06       87.30
+{txt}                        Sylvester Petro {c |}{res}          1        0.03       87.33
+{txt}                    Theodore P. Herrick {c |}{res}          7        0.20       87.53
+{txt}                      Thomas D. Willett {c |}{res}          2        0.06       87.59
+{txt}Thomas D. Willett and William Craig S.. {c |}{res}          4        0.12       87.70
+{txt}                         Thomas G. West {c |}{res}          3        0.09       87.79
+{txt}                       Thomas L. Pangle {c |}{res}         12        0.35       88.14
+{txt}                         Timothy Fuller {c |}{res}          7        0.20       88.34
+{txt}                            Uri Ra'anan {c |}{res}          4        0.12       88.45
+{txt}                     Vernon Lomax Smith {c |}{res}         10        0.29       88.74
+{txt}                          Vigen Guroian {c |}{res}         13        0.38       89.12
+{txt}                        W. Allen Spivey {c |}{res}         18        0.52       89.64
+{txt}                       W. David Maxwell {c |}{res}         10        0.29       89.92
+{txt}                      W. Glenn Campbell {c |}{res}         10        0.29       90.21
+{txt}                          W. Lee Hansen {c |}{res}          1        0.03       90.24
+{txt}W. Wesley McDonald and Paul E. Gottfr.. {c |}{res}          5        0.14       90.39
+{txt}                     Walter E. Williams {c |}{res}          1        0.03       90.42
+{txt}                        Walter F. Berns {c |}{res}         20        0.58       90.99
+{txt}                           Walter Y. Oi {c |}{res}         14        0.40       91.40
+{txt}      Walter Y. Oi and Donald F. Gordon {c |}{res}          2        0.06       91.45
+{txt}                       Wayne E. Shroyer {c |}{res}          9        0.26       91.71
+{txt}                      Wilfred M. McClay {c |}{res}          8        0.23       91.95
+{txt}   Wilhelm Ropke and John V. Van Sickle {c |}{res}          1        0.03       91.97
+{txt}                       William A. Paton {c |}{res}         27        0.78       92.75
+{txt}William A. Paton Jr. and Homer A. Black {c |}{res}          8        0.23       92.98
+{txt}                      William B. Palmer {c |}{res}          1        0.03       93.01
+{txt}                      William C. Havard {c |}{res}          6        0.17       93.19
+{txt}                     William C. Tuthill {c |}{res}          3        0.09       93.27
+{txt}              William Craig Stubblebine {c |}{res}          1        0.03       93.30
+{txt}                        William D. Ross {c |}{res}          7        0.20       93.50
+{txt}                    William F. Campbell {c |}{res}          4        0.12       93.62
+{txt}                        William H. Hutt {c |}{res}          1        0.03       93.65
+{txt}                    William H. Peterson {c |}{res}          4        0.12       93.76
+{txt}                       William Huizingh {c |}{res}          5        0.14       93.91
+{txt}                     William J. Fellner {c |}{res}         19        0.55       94.46
+{txt}                    William M. McGovern {c |}{res}          5        0.14       94.60
+{txt}William M. McGovern and R. Barry Farr.. {c |}{res}          1        0.03       94.63
+{txt}                     William R. Kintner {c |}{res}         27        0.78       95.41
+{txt}                  William R. Van Cleave {c |}{res}         42        1.21       96.62
+{txt}                  William Richard Allen {c |}{res}         21        0.61       97.23
+{txt}                      William S. Stokes {c |}{res}          9        0.26       97.49
+{txt}                      Williard E. Stone {c |}{res}         12        0.35       97.83
+{txt}                      Willmoore Kendall {c |}{res}         18        0.52       98.35
+{txt}                      Wilson E. Schmidt {c |}{res}         11        0.32       98.67
+{txt}                       Wilson L. Farman {c |}{res}          1        0.03       98.70
+{txt}                     Wilton T. Anderson {c |}{res}         11        0.32       99.02
+{txt}                            Yale Brozen {c |}{res}         34        0.98      100.00
+{txt}{hline 40}{c +}{hline 35}
+                                  Total {c |}{res}      3,464      100.00
+
+{com}. tab sponsors, sort
+
+                               {txt}Sponsors {c |}      Freq.     Percent        Cum.
+{hline 40}{c +}{hline 35}
+                       Roland N. McKean {c |}{res}         54        1.56        1.56
+{txt}              Robert L. Pfaltzgraff Jr. {c |}{res}         49        1.41        2.97
+{txt}                         Gary S. Becker {c |}{res}         42        1.21        4.19
+{txt}                       Leland B. Yeager {c |}{res}         42        1.21        5.40
+{txt}                  William R. Van Cleave {c |}{res}         42        1.21        6.61
+{txt}                         Harry V. Jaffa {c |}{res}         41        1.18        7.79
+{txt}                       G. Warren Nutter {c |}{res}         40        1.15        8.95
+{txt}                         Joseph Cropsey {c |}{res}         39        1.13       10.08
+{txt}                      James M. Buchanan {c |}{res}         36        1.04       11.11
+{txt}                      Stephen J. Tonsor {c |}{res}         35        1.01       12.12
+{txt}                            Yale Brozen {c |}{res}         34        0.98       13.11
+{txt}                          Fritz Machlup {c |}{res}         33        0.95       14.06
+{txt}                     Donald L. Kemmerer {c |}{res}         31        0.89       14.95
+{txt}                           Karl Brunner {c |}{res}         30        0.87       15.82
+{txt}                 Leo Paul S. de Alvarez {c |}{res}         30        0.87       16.69
+{txt}                      George J. Stigler {c |}{res}         29        0.84       17.52
+{txt}                Harvey C. Mansfield Jr. {c |}{res}         29        0.84       18.36
+{txt}                     Howard R. Penniman {c |}{res}         29        0.84       19.20
+{txt}                          John E. Alvis {c |}{res}         29        0.84       20.03
+{txt}Christopher Bruell and Robert K. Faul.. {c |}{res}         28        0.81       20.84
+{txt}                       Gerhart Niemeyer {c |}{res}         28        0.81       21.65
+{txt}                       William A. Paton {c |}{res}         27        0.78       22.43
+{txt}                     William R. Kintner {c |}{res}         27        0.78       23.21
+{txt}                      C. Lowell Harriss {c |}{res}         26        0.75       23.96
+{txt}                         Deil S. Wright {c |}{res}         26        0.75       24.71
+{txt}                    G. Ellis Sandoz Jr. {c |}{res}         26        0.75       25.46
+{txt}                       Hans F. Sennholz {c |}{res}         26        0.75       26.21
+{txt}                        Peter L. Berger {c |}{res}         26        0.75       26.96
+{txt}                       Alfred de Grazia {c |}{res}         25        0.72       27.68
+{txt}                     Fred D. Miller Jr. {c |}{res}         25        0.72       28.41
+{txt}                         Harold W. Rood {c |}{res}         25        0.72       29.13
+{txt}                    Donald W. Treadgold {c |}{res}         24        0.69       29.82
+{txt}      Glen E. Thurow and Thomas G. West {c |}{res}         24        0.69       30.51
+{txt}                         David Schmidtz {c |}{res}         23        0.66       31.18
+{txt}                         H. Gregg Lewis {c |}{res}         23        0.66       31.84
+{txt}                       Jack Hirshleifer {c |}{res}         23        0.66       32.51
+{txt}                    Kenneth W. Thompson {c |}{res}         23        0.66       33.17
+{txt}                       Armen A. Alchian {c |}{res}         22        0.64       33.80
+{txt}                       George Grassmuck {c |}{res}         22        0.64       34.44
+{txt}                     Gottfried Haberler {c |}{res}         22        0.64       35.08
+{txt}                        Henry W. Briefs {c |}{res}         22        0.64       35.71
+{txt}                     Joseph J. Spengler {c |}{res}         22        0.64       36.35
+{txt}                Michael Allen Gillespie {c |}{res}         22        0.64       36.98
+{txt}                      Richard L. Walker {c |}{res}         22        0.64       37.62
+{txt}                Charles L. Griswold Jr. {c |}{res}         21        0.61       38.22
+{txt}                        Mary P. Nichols {c |}{res}         21        0.61       38.83
+{txt}                          Nathan Tarcov {c |}{res}         21        0.61       39.43
+{txt}                       R. Barry Farrell {c |}{res}         21        0.61       40.04
+{txt}                  William Richard Allen {c |}{res}         21        0.61       40.65
+{txt}                          Ruth W. Grant {c |}{res}         20        0.58       41.22
+{txt}                        Walter F. Berns {c |}{res}         20        0.58       41.80
+{txt}                 Charles E. Butterworth {c |}{res}         19        0.55       42.35
+{txt}                      Erwin A. Gaumnitz {c |}{res}         19        0.55       42.90
+{txt}     H. Gregg Lewis and Milton Friedman {c |}{res}         19        0.55       43.45
+{txt}                        Larry T. Wimmer {c |}{res}         19        0.55       44.00
+{txt}                       Morton J. Frisch {c |}{res}         19        0.55       44.54
+{txt}                       Robert P. George {c |}{res}         19        0.55       45.09
+{txt}                     William J. Fellner {c |}{res}         19        0.55       45.64
+{txt}                       Allan H. Meltzer {c |}{res}         18        0.52       46.16
+{txt}                       Francis M. Boddy {c |}{res}         18        0.52       46.68
+{txt}              Nicholas Georgescu-Roegen {c |}{res}         18        0.52       47.20
+{txt}                        W. Allen Spivey {c |}{res}         18        0.52       47.72
+{txt}                      Willmoore Kendall {c |}{res}         18        0.52       48.24
+{txt}                           Claes G. Ryn {c |}{res}         17        0.49       48.73
+{txt}                     Earhart Foundation {c |}{res}         17        0.49       49.22
+{txt}                        Francis Canavan {c |}{res}         17        0.49       49.71
+{txt}                            Leo Strauss {c |}{res}         17        0.49       50.20
+{txt}                      M. Richard Zinman {c |}{res}         17        0.49       50.69
+{txt}                             Marc Landy {c |}{res}         17        0.49       51.18
+{txt}                  Richard H. Shultz Jr. {c |}{res}         17        0.49       51.67
+{txt}                            Allan Bloom {c |}{res}         16        0.46       52.14
+{txt}                       Arthur M. Melzer {c |}{res}         16        0.46       52.60
+{txt}                      Benjamin A. Rogge {c |}{res}         16        0.46       53.06
+{txt}                        Howard S. Ellis {c |}{res}         16        0.46       53.52
+{txt}                        Milton Friedman {c |}{res}         16        0.46       53.98
+{txt}                      Paul W. McCracken {c |}{res}         16        0.46       54.45
+{txt}                       Alex N. Dragnich {c |}{res}         15        0.43       54.88
+{txt}                       Arthur M. Weimer {c |}{res}         15        0.43       55.31
+{txt}                       Daniel J. Elazar {c |}{res}         15        0.43       55.74
+{txt} G. Warren Nutter and James M. Buchanan {c |}{res}         15        0.43       56.18
+{txt}                       Gottfried Dietze {c |}{res}         15        0.43       56.61
+{txt}                      Janusz K. Zawodny {c |}{res}         15        0.43       57.04
+{txt}                   Murray L. Weidenbaum {c |}{res}         15        0.43       57.48
+{txt}                      Nolan E. Williams {c |}{res}         15        0.43       57.91
+{txt}   Robert Scigliano and David Lowenthal {c |}{res}         15        0.43       58.34
+{txt}                      Harold M. Heckman {c |}{res}         14        0.40       58.75
+{txt}                       Jerry Weinberger {c |}{res}         14        0.40       59.15
+{txt}                       Noel B. Reynolds {c |}{res}         14        0.40       59.56
+{txt}                    Robert E. Lucas Jr. {c |}{res}         14        0.40       59.96
+{txt}                        Steven B. Smith {c |}{res}         14        0.40       60.36
+{txt}                           Walter Y. Oi {c |}{res}         14        0.40       60.77
+{txt}                            Alan Heslop {c |}{res}         13        0.38       61.14
+{txt}                         Arthur Waldron {c |}{res}         13        0.38       61.52
+{txt}   Burton A. Weisbrod and W. Lee Hansen {c |}{res}         13        0.38       61.89
+{txt}    Catherine H. and Michael P. Zuckert {c |}{res}         13        0.38       62.27
+{txt}                      Charles R. Kesler {c |}{res}         13        0.38       62.64
+{txt}                        George W. Carey {c |}{res}         13        0.38       63.02
+{txt}                         Gordon Tullock {c |}{res}         13        0.38       63.39
+{txt}                       Peter J. Boettke {c |}{res}         13        0.38       63.77
+{txt}                       Robert B. Pippin {c |}{res}         13        0.38       64.15
+{txt}                          Vigen Guroian {c |}{res}         13        0.38       64.52
+{txt}                            Carl Leiden {c |}{res}         12        0.35       64.87
+{txt}                     Charles S. Hyneman {c |}{res}         12        0.35       65.21
+{txt}                   Clifton L. Ganus Jr. {c |}{res}         12        0.35       65.56
+{txt}                     David I. Meiselman {c |}{res}         12        0.35       65.91
+{txt}                 Elizabeth Fox-Genovese {c |}{res}         12        0.35       66.25
+{txt}                     John V. Van Sickle {c |}{res}         12        0.35       66.60
+{txt}                       M. Bruce Johnson {c |}{res}         12        0.35       66.95
+{txt}                    Marshall R. Colberg {c |}{res}         12        0.35       67.29
+{txt}                      Robert H. Horwitz {c |}{res}         12        0.35       67.64
+{txt}                       Thomas L. Pangle {c |}{res}         12        0.35       67.98
+{txt}                      Williard E. Stone {c |}{res}         12        0.35       68.33
+{txt}                            Arthur Kemp {c |}{res}         11        0.32       68.65
+{txt}                     Chelcie C. Bosland {c |}{res}         11        0.32       68.97
+{txt}                      Cotton M. Lindsay {c |}{res}         11        0.32       69.28
+{txt}                    David McCord Wright {c |}{res}         11        0.32       69.60
+{txt}                    Donald J. Boudreaux {c |}{res}         11        0.32       69.92
+{txt}                     Friedrich A. Hayek {c |}{res}         11        0.32       70.24
+{txt}Larry T. Wimmer and B. Delworth Gardner {c |}{res}         11        0.32       70.55
+{txt}                     Merrill K. Bennett {c |}{res}         11        0.32       70.87
+{txt}                          Michael Davis {c |}{res}         11        0.32       71.19
+{txt}                     Michael P. Zuckert {c |}{res}         11        0.32       71.51
+{txt}                      Wilson E. Schmidt {c |}{res}         11        0.32       71.82
+{txt}                     Wilton T. Anderson {c |}{res}         11        0.32       72.14
+{txt}                   Catherine H. Zuckert {c |}{res}         10        0.29       72.43
+{txt}                            Frank Grace {c |}{res}         10        0.29       72.72
+{txt}                          Fred R. Glahe {c |}{res}         10        0.29       73.01
+{txt}                        Goetz A. Briefs {c |}{res}         10        0.29       73.30
+{txt}                   Israel Mayer Kirzner {c |}{res}         10        0.29       73.59
+{txt}                    John J. DiIulio Jr. {c |}{res}         10        0.29       73.87
+{txt}Robert L. Pfaltzgraff Jr. and Richard.. {c |}{res}         10        0.29       74.16
+{txt}                       Stanley H. Rosen {c |}{res}         10        0.29       74.45
+{txt}                         Susan M. Shell {c |}{res}         10        0.29       74.74
+{txt}                     Vernon Lomax Smith {c |}{res}         10        0.29       75.03
+{txt}                       W. David Maxwell {c |}{res}         10        0.29       75.32
+{txt}                      W. Glenn Campbell {c |}{res}         10        0.29       75.61
+{txt}                     Clarence Philbrook {c |}{res}          9        0.26       75.87
+{txt}                   George W. Eckelberry {c |}{res}          9        0.26       76.13
+{txt}                        James Q. Wilson {c |}{res}          9        0.26       76.39
+{txt}                         Martin Diamond {c |}{res}          9        0.26       76.65
+{txt}                      Robert L. Bunting {c |}{res}          9        0.26       76.91
+{txt}                       Wayne E. Shroyer {c |}{res}          9        0.26       77.17
+{txt}                      William S. Stokes {c |}{res}          9        0.26       77.42
+{txt}                            A. J. Meyer {c |}{res}          8        0.23       77.66
+{txt}                     Anthony Costantino {c |}{res}          8        0.23       77.89
+{txt}                        Clyde N. Wilson {c |}{res}          8        0.23       78.12
+{txt}                          David N. Rowe {c |}{res}          8        0.23       78.35
+{txt}                         Donald S. Lutz {c |}{res}          8        0.23       78.58
+{txt}                        E. Maynard Aris {c |}{res}          8        0.23       78.81
+{txt}                   Edward H. Chamberlin {c |}{res}          8        0.23       79.04
+{txt}                    Harlan L. McCracken {c |}{res}          8        0.23       79.27
+{txt}                  Hendrik S. Houthakker {c |}{res}          8        0.23       79.50
+{txt}                    James R. Stoner Jr. {c |}{res}          8        0.23       79.73
+{txt}                       James S. Coleman {c |}{res}          8        0.23       79.97
+{txt}                      M. Slade Kendrick {c |}{res}          8        0.23       80.20
+{txt}                      Patrick J. Deneen {c |}{res}          8        0.23       80.43
+{txt}                            Paul Garner {c |}{res}          8        0.23       80.66
+{txt}                     Robert K. Faulkner {c |}{res}          8        0.23       80.89
+{txt}                       Robert Scigliano {c |}{res}          8        0.23       81.12
+{txt}                      Wilfred M. McClay {c |}{res}          8        0.23       81.35
+{txt}William A. Paton Jr. and Homer A. Black {c |}{res}          8        0.23       81.58
+{txt}                          Arleigh Burke {c |}{res}          7        0.20       81.78
+{txt}                         Benjamin Klein {c |}{res}          7        0.20       81.99
+{txt}                     Edward C. Banfield {c |}{res}          7        0.20       82.19
+{txt}                          Emerson Henke {c |}{res}          7        0.20       82.39
+{txt}                          Franz Michael {c |}{res}          7        0.20       82.59
+{txt}                       G. T. Schwenning {c |}{res}          7        0.20       82.79
+{txt}                            Herman Belz {c |}{res}          7        0.20       83.00
+{txt}                      Karl A. Wittfogel {c |}{res}          7        0.20       83.20
+{txt}                         Kurt L. London {c |}{res}          7        0.20       83.40
+{txt}        Larry Arnhart and Gary D. Glenn {c |}{res}          7        0.20       83.60
+{txt}                        Procter Thomson {c |}{res}          7        0.20       83.80
+{txt}                       Reginald D. Lang {c |}{res}          7        0.20       84.01
+{txt}                     Robert G. Caldwell {c |}{res}          7        0.20       84.21
+{txt}                          Ross M. Lence {c |}{res}          7        0.20       84.41
+{txt}                       Simon Rottenberg {c |}{res}          7        0.20       84.61
+{txt}                    Theodore P. Herrick {c |}{res}          7        0.20       84.82
+{txt}                         Timothy Fuller {c |}{res}          7        0.20       85.02
+{txt}                        William D. Ross {c |}{res}          7        0.20       85.22
+{txt}                         Arnold Collery {c |}{res}          6        0.17       85.39
+{txt}                         Arthur Sharron {c |}{res}          6        0.17       85.57
+{txt}                          Attiat F. Ott {c |}{res}          6        0.17       85.74
+{txt}                     Bernard W. Sheehan {c |}{res}          6        0.17       85.91
+{txt}   Carl Leiden and James R. Steintrager {c |}{res}          6        0.17       86.09
+{txt}                       Clare E. Griffin {c |}{res}          6        0.17       86.26
+{txt}                      Colin D. Campbell {c |}{res}          6        0.17       86.43
+{txt}                     Ellen Frankel Paul {c |}{res}          6        0.17       86.61
+{txt}                     George W. Stocking {c |}{res}          6        0.17       86.78
+{txt}                    J. Clayburn LaForce {c |}{res}          6        0.17       86.95
+{txt}                            Karl Brandt {c |}{res}          6        0.17       87.12
+{txt}                             Paul Heyne {c |}{res}          6        0.17       87.30
+{txt}                        Ronald H. Coase {c |}{res}          6        0.17       87.47
+{txt}                     S. Charles Maurice {c |}{res}          6        0.17       87.64
+{txt}                          Stanley Parry {c |}{res}          6        0.17       87.82
+{txt}                      Stefan T. Possony {c |}{res}          6        0.17       87.99
+{txt}                  Stephen M. DuBrul Jr. {c |}{res}          6        0.17       88.16
+{txt}                      William C. Havard {c |}{res}          6        0.17       88.34
+{txt}                      Alan Charles Kors {c |}{res}          5        0.14       88.48
+{txt}                  Charles Cortez Abbott {c |}{res}          5        0.14       88.63
+{txt}                          Eric Voegelin {c |}{res}          5        0.14       88.77
+{txt}                       Fred C. Robinson {c |}{res}          5        0.14       88.91
+{txt}                   James A. Steintrager {c |}{res}          5        0.14       89.06
+{txt}                  James Washington Bell {c |}{res}          5        0.14       89.20
+{txt}    John E. Champion and Homer A. Black {c |}{res}          5        0.14       89.35
+{txt}                        Joshua Mitchell {c |}{res}          5        0.14       89.49
+{txt}                         Lester B. Lave {c |}{res}          5        0.14       89.64
+{txt}                       Ludwig von Mises {c |}{res}          5        0.14       89.78
+{txt}                         Mario J. Rizzo {c |}{res}          5        0.14       89.92
+{txt}                       Nicholas Capaldi {c |}{res}          5        0.14       90.07
+{txt}                     Oswald H. Brownlee {c |}{res}          5        0.14       90.21
+{txt}                      Paul B. Denlinger {c |}{res}          5        0.14       90.36
+{txt}           Richard Muth and Yale Brozen {c |}{res}          5        0.14       90.50
+{txt}                         Robert D. Haun {c |}{res}          5        0.14       90.65
+{txt}                      Robert M. Slusser {c |}{res}          5        0.14       90.79
+{txt}W. Wesley McDonald and Paul E. Gottfr.. {c |}{res}          5        0.14       90.94
+{txt}                       William Huizingh {c |}{res}          5        0.14       91.08
+{txt}                    William M. McGovern {c |}{res}          5        0.14       91.22
+{txt}                      A. Weyman Patrick {c |}{res}          4        0.12       91.34
+{txt}                       David B. Mustard {c |}{res}          4        0.12       91.45
+{txt}      Donald Pruis and John Vanden Berg {c |}{res}          4        0.12       91.57
+{txt}                          Dwight R. Lee {c |}{res}          4        0.12       91.69
+{txt}                   Ferdinand A. Hermens {c |}{res}          4        0.12       91.80
+{txt}                       Forrest McDonald {c |}{res}          4        0.12       91.92
+{txt}                         Francois Furet {c |}{res}          4        0.12       92.03
+{txt}                        G. Carl Wiegand {c |}{res}          4        0.12       92.15
+{txt}                    George C. Roche III {c |}{res}          4        0.12       92.26
+{txt}                         Harold Demsetz {c |}{res}          4        0.12       92.38
+{txt}                            Jacob Viner {c |}{res}          4        0.12       92.49
+{txt}                     Jerome W. Milliman {c |}{res}          4        0.12       92.61
+{txt}                        Karen I. Vaughn {c |}{res}          4        0.12       92.73
+{txt}                         Klaus H. Wolff {c |}{res}          4        0.12       92.84
+{txt}                       Lawrence M. Mead {c |}{res}          4        0.12       92.96
+{txt}                       Louis M. Spadaro {c |}{res}          4        0.12       93.07
+{txt}                           Mark N. Katz {c |}{res}          4        0.12       93.19
+{txt}     Milton Friedman and H. Gregg Lewis {c |}{res}          4        0.12       93.30
+{txt}                         Norma Thompson {c |}{res}          4        0.12       93.42
+{txt}                        P. Dean Russell {c |}{res}          4        0.12       93.53
+{txt}                       Robert F. Tamura {c |}{res}          4        0.12       93.65
+{txt}Roland F. Salmonson and James Don Edw.. {c |}{res}          4        0.12       93.76
+{txt}Thomas D. Willett and William Craig S.. {c |}{res}          4        0.12       93.88
+{txt}                            Uri Ra'anan {c |}{res}          4        0.12       94.00
+{txt}                    William F. Campbell {c |}{res}          4        0.12       94.11
+{txt}                    William H. Peterson {c |}{res}          4        0.12       94.23
+{txt}                         Alfred Buehler {c |}{res}          3        0.09       94.31
+{txt}                     Arlen R. Hellwarth {c |}{res}          3        0.09       94.40
+{txt}                      Charles E. Schutz {c |}{res}          3        0.09       94.49
+{txt}                       Chiaki Nishiyama {c |}{res}          3        0.09       94.57
+{txt}                       Ellis W. Lamborn {c |}{res}          3        0.09       94.66
+{txt}                      Francis G. Wilson {c |}{res}          3        0.09       94.75
+{txt}                          Gary D. Glenn {c |}{res}          3        0.09       94.83
+{txt}                     George A. Panichas {c |}{res}          3        0.09       94.92
+{txt}H. Gregg Lewis, Frank Knight, and Mil.. {c |}{res}          3        0.09       95.01
+{txt}      Harry J. Rehn and G. Carl Wiegand {c |}{res}          3        0.09       95.09
+{txt}                     Herbert J. Storing {c |}{res}          3        0.09       95.18
+{txt}                         J. Rufus Fears {c |}{res}          3        0.09       95.27
+{txt}                      James Don Edwards {c |}{res}          3        0.09       95.35
+{txt}                       James K. Pollock {c |}{res}          3        0.09       95.44
+{txt}                      John H. Hallowell {c |}{res}          3        0.09       95.53
+{txt}                          John J. Agria {c |}{res}          3        0.09       95.61
+{txt}                      Kenneth Colegrove {c |}{res}          3        0.09       95.70
+{txt}                           Mark Perlman {c |}{res}          3        0.09       95.79
+{txt}                     Melvin E. Bradford {c |}{res}          3        0.09       95.87
+{txt}                       Musa Y. Hussayni {c |}{res}          3        0.09       95.96
+{txt}Nicholas Georgescu-Roegen and George .. {c |}{res}          3        0.09       96.05
+{txt}                       Richard F. Staar {c |}{res}          3        0.09       96.13
+{txt}                       Robert E. Pickup {c |}{res}          3        0.09       96.22
+{txt}  Roland N. McKean and Leland B. Yeager {c |}{res}          3        0.09       96.30
+{txt}                         Thomas G. West {c |}{res}          3        0.09       96.39
+{txt}                     William C. Tuthill {c |}{res}          3        0.09       96.48
+{txt}Alan N. Sabrosky and William R. Kintner {c |}{res}          2        0.06       96.54
+{txt}                        Albert H. Hobbs {c |}{res}          2        0.06       96.59
+{txt}  Allan Meltzer and Robert E. Lucas Jr. {c |}{res}          2        0.06       96.65
+{txt}                      Barrie Richardson {c |}{res}          2        0.06       96.71
+{txt}                  Charles Elmo Ferguson {c |}{res}          2        0.06       96.77
+{txt}                          Desire Barath {c |}{res}          2        0.06       96.82
+{txt}                     E. Christian Kopff {c |}{res}          2        0.06       96.88
+{txt}            Frederick R. Warren-Boulton {c |}{res}          2        0.06       96.94
+{txt}Gardner M. Jones and Roland F. Salmon.. {c |}{res}          2        0.06       97.00
+{txt}       George J. Stigler and Leo Wolman {c |}{res}          2        0.06       97.06
+{txt}                      George M. Wattles {c |}{res}          2        0.06       97.11
+{txt}Gottfried Haberler and William H. Cha.. {c |}{res}          2        0.06       97.17
+{txt}                    Grace Ellen Goodell {c |}{res}          2        0.06       97.23
+{txt}                           Jacob Mincer {c |}{res}          2        0.06       97.29
+{txt}                    James B. Meriwether {c |}{res}          2        0.06       97.34
+{txt}                     James E. Dougherty {c |}{res}          2        0.06       97.40
+{txt}                        James V. Schall {c |}{res}          2        0.06       97.46
+{txt}                          John H. Moore {c |}{res}          2        0.06       97.52
+{txt}   John Vanden Berg and Donald E. Pruis {c |}{res}          2        0.06       97.58
+{txt}                       Joseph Hamburger {c |}{res}          2        0.06       97.63
+{txt}                     Kenneth G. Elzinga {c |}{res}          2        0.06       97.69
+{txt}                    Lee Robert Johnston {c |}{res}          2        0.06       97.75
+{txt}                             Leo Wolman {c |}{res}          2        0.06       97.81
+{txt}    Mary P. Nichols and Francis Canavan {c |}{res}          2        0.06       97.86
+{txt}                         Othel J. Curry {c |}{res}          2        0.06       97.92
+{txt}                           Paul A. Rahe {c |}{res}          2        0.06       97.98
+{txt}                     Raymond W. Coleman {c |}{res}          2        0.06       98.04
+{txt}       Ross M. Lence and Donald S. Lutz {c |}{res}          2        0.06       98.09
+{txt}                      Svetozar Pejovich {c |}{res}          2        0.06       98.15
+{txt}                      Thomas D. Willett {c |}{res}          2        0.06       98.21
+{txt}      Walter Y. Oi and Donald F. Gordon {c |}{res}          2        0.06       98.27
+{txt}                         A. James Meigs {c |}{res}          1        0.03       98.30
+{txt}Arthur F. Burns, George J. Stigler, a.. {c |}{res}          1        0.03       98.33
+{txt}                     Charles F. Haywood {c |}{res}          1        0.03       98.35
+{txt}                     Charles R. Dechert {c |}{res}          1        0.03       98.38
+{txt}Charles S. Hyneman and Gottfried Dietze {c |}{res}          1        0.03       98.41
+{txt}   Chiaki Nishiyama and Milton Friedman {c |}{res}          1        0.03       98.44
+{txt}                       Don J. Pearlberg {c |}{res}          1        0.03       98.47
+{txt}                          Don Paarlberg {c |}{res}          1        0.03       98.50
+{txt}                       Donald F. Gordon {c |}{res}          1        0.03       98.53
+{txt}                           Donald Kagan {c |}{res}          1        0.03       98.56
+{txt}     Eric Voegelin and Gerhart Niemeyer {c |}{res}          1        0.03       98.59
+{txt}                        Eugene McGregor {c |}{res}          1        0.03       98.61
+{txt}                  Frederick A. Bradford {c |}{res}          1        0.03       98.64
+{txt}                    Frederick S. Morton {c |}{res}          1        0.03       98.67
+{txt}     G. Carl Wiegand and Harry V. Jaffa {c |}{res}          1        0.03       98.70
+{txt}  G. Warren Nutter and Chiaki Nishiyama {c |}{res}          1        0.03       98.73
+{txt}                      George K. Romoser {c |}{res}          1        0.03       98.76
+{txt} Gottfried Haberler and Procter Thomson {c |}{res}          1        0.03       98.79
+{txt}                     Hamilton A.R. Gibb {c |}{res}          1        0.03       98.82
+{txt}                          Harry M. Clor {c |}{res}          1        0.03       98.85
+{txt}      Henry De Wit and John Vanden Berg {c |}{res}          1        0.03       98.87
+{txt}                         Henry G. Manne {c |}{res}          1        0.03       98.90
+{txt}                      Howard H. Peckham {c |}{res}          1        0.03       98.93
+{txt}                          J. G. Mehling {c |}{res}          1        0.03       98.96
+{txt}James Don Edwards and Roland F. Salmo.. {c |}{res}          1        0.03       98.99
+{txt} James Don Edwards and William A. Paton {c |}{res}          1        0.03       99.02
+{txt} James Don Edwards and William Huizingh {c |}{res}          1        0.03       99.05
+{txt}James F. McCarley and Charles E. Schutz {c |}{res}          1        0.03       99.08
+{txt}James Washington Bell, John V. Van Si.. {c |}{res}          1        0.03       99.11
+{txt}               Jeane Jordan Kirkpatrick {c |}{res}          1        0.03       99.13
+{txt}              Joan Wylie and J. R. Hall {c |}{res}          1        0.03       99.16
+{txt}John V. Van Sickle and Arthur M. Weimer {c |}{res}          1        0.03       99.19
+{txt}John V. Van Sickle and Stephen J. Ton.. {c |}{res}          1        0.03       99.22
+{txt}                       John Vanden Berg {c |}{res}          1        0.03       99.25
+{txt}                          Larry Arnhart {c |}{res}          1        0.03       99.28
+{txt}                      Laurence M. Gould {c |}{res}          1        0.03       99.31
+{txt}                            Leo Schmidt {c |}{res}          1        0.03       99.34
+{txt}                         M. H. Waterman {c |}{res}          1        0.03       99.36
+{txt}             Marina von Neumann Whitman {c |}{res}          1        0.03       99.39
+{txt}                           Miller Upton {c |}{res}          1        0.03       99.42
+{txt}                         Paul A. Cantor {c |}{res}          1        0.03       99.45
+{txt}                      Paul E. Gottfried {c |}{res}          1        0.03       99.48
+{txt}                          Paul L. Adams {c |}{res}          1        0.03       99.51
+{txt}                  Richard W. Richardson {c |}{res}          1        0.03       99.54
+{txt}                      Russell A. Fraser {c |}{res}          1        0.03       99.57
+{txt}                           Russell Kirk {c |}{res}          1        0.03       99.60
+{txt}                  Seymour Martin Lipset {c |}{res}          1        0.03       99.62
+{txt}   Simon Rottenberg and Vernon L. Smith {c |}{res}          1        0.03       99.65
+{txt}     Stanley Parry and Gerhart Niemeyer {c |}{res}          1        0.03       99.68
+{txt}                     Stephan Thernstrom {c |}{res}          1        0.03       99.71
+{txt}                    Stephen A. McKnight {c |}{res}          1        0.03       99.74
+{txt}                        Sylvester Petro {c |}{res}          1        0.03       99.77
+{txt}                          W. Lee Hansen {c |}{res}          1        0.03       99.80
+{txt}                     Walter E. Williams {c |}{res}          1        0.03       99.83
+{txt}   Wilhelm Ropke and John V. Van Sickle {c |}{res}          1        0.03       99.86
+{txt}                      William B. Palmer {c |}{res}          1        0.03       99.88
+{txt}              William Craig Stubblebine {c |}{res}          1        0.03       99.91
+{txt}                        William H. Hutt {c |}{res}          1        0.03       99.94
+{txt}William M. McGovern and R. Barry Farr.. {c |}{res}          1        0.03       99.97
+{txt}                       Wilson L. Farman {c |}{res}          1        0.03      100.00
+{txt}{hline 40}{c +}{hline 35}
+                                  Total {c |}{res}      3,464      100.00
+
+{com}. file open test using "https://en.wikipedia.org/wiki/Mont_Pelerin_Society", read
+
+. file read test line
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD30e4_000000.tmp"
+{txt}
+{com}. ***Try different, seemingly simpler method first
+. set obs 1
+{err}observation number out of range
+{p 4 4 2}
+Observation number must be between
+3,464
+and
+2,147,483,619.
+(Observation numbers are typed
+without commas.)
+{p_end}
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD30e4_000000.tmp"
+{txt}
+{com}. export excel using "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\E cleaning and analysis.xls", firstrow(variables) replace
+{res}{txt}file C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\E cleaning and analysis.xls saved
+
+{com}. save "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\E cleaning and analysis.dta", replace
+{txt}file C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\analysis\E cleaning and analysis.dta saved
+
+{com}. 
+{txt}end of do-file
+
+{com}. exit, clear

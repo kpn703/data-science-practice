@@ -1,0 +1,1079 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}21 Feb 2018, 16:34:06
+
+{com}. br if regexm(v1,"[0-9]{c -(}4{c )-}")==1
+
+. br if regexm(v1,"([0-9]{c -(}4{c )-})")==1
+
+. br if regexm(v1,"([0-9][0-9][0-9][0-9])")==1
+
+. br if regexm(v1,"([0-9][0-9][0-9][0-9])")==1
+
+. br if regexm(v1,"([0-9][0-9][0-9][0-9])")==1 & lifemember==1
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace yearentered=regexs(v1,"[0-9][0-9][0-9][0-9]",.) if lifemember==1
+{err}v1," invalid name
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace yearentered=regexs(v1,"[0-9][0-9][0-9][0-9]",.)==1 & if lifemember==1
+{err}v1," invalid name
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace yearentered=regexs(v1,"[0-9][0-9][0-9][0-9]",.) if lifemember==1
+{err}v1," invalid name
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace yearentered=regexs(v1,"[0-9][0-9][0-9][0-9]") if lifemember==1
+{err}v1," invalid name
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. help regexs
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace yearentered=regexr(v1,"[0-9][0-9][0-9][0-9]") if lifemember==1
+{err}invalid syntax
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace yearentered=regexs(0) if regexm(v1,"[0-9][0-9][0-9][0-9]")==1
+{txt}(123 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. br
+
+. format v1, s%50
+{err}options not allowed
+{txt}{search r(101), local:r(101);}
+
+{com}. format v1 s%50
+{err}variable {bf}s{sf} not found
+{txt}{search r(111), local:r(111);}
+
+{com}. format v1 %50s
+
+. format v1 %80s
+
+. format v1 %100s
+
+. format v1 %120s
+
+. destring yearentered, replace
+{txt}yearentered: all characters numeric; {res}replaced {txt}as {res}int
+{txt}(55 missing values generated)
+{res}
+{com}. gen yearentered2=substr(v1,-5,.) if regexm(v1,"[0-9],$")==1
+{txt}(178 missing values generated)
+
+{com}. destring yearentered2, replace ignore(`","') force
+{txt}yearentered2: character{res} ,{txt} removed; {res}replaced {txt}as {res}int
+{txt}(178 missing values generated)
+{res}
+{com}. drop yearentered2
+
+. help subinstr
+
+. help regexr
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace v1=subinstr(v1,",","",-1)
+{txt}(0 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. help substr
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace v1=substr(v1,",","",-1)
+{err}invalid syntax
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace v1=substr(v1,",",-1)
+{err}type mismatch
+{txt}{search r(109), local:r(109);}
+
+end of do-file
+
+{search r(109), local:r(109);}
+
+{com}. help trim
+
+. ssc install trim()
+{txt}{err}invalid syntax
+{txt}{search r(101), local:r(101);}
+
+{com}. help trim()
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. ***MPS Directory
+. clear all
+{res}{txt}
+{com}. 
+. *log using 
+. 
+. import delimited "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\Mont Pelerin Society Directory 2010.txt", delimiter("  ", asstring) ///Importing everything to one variable--> parse
+> 
+{res}{text}(1 var, 597 obs)
+
+{com}. *** Generate variables that easily subtracted from string. 
+. gen lifemember=0
+{txt}
+{com}. replace lifemember=1 if regexm(v1, "Life Member")==1
+{txt}(121 real changes made)
+
+{com}. 
+. gen yearentered=substr(v1,-5,.) if regexm(v1,"[0-9],$")==1
+{txt}(597 missing values generated)
+
+{com}. replace yearentered=subinstr(yearentered,",","",.)
+{txt}(0 real changes made)
+
+{com}. 
+. *Now extract entering years for life members
+. replace yearentered=regexs(0) if regexm(v1,"[0-9][0-9][0-9][0-9]")==1
+{txt}variable {bf}yearentered{sf} was {bf}{res}str1{sf}{txt} now {bf}{res}str4{sf}
+{txt}(542 real changes made)
+
+{com}. destring yearentered, replace ignore(`","') force ///This is easier than subinstr!
+
+{txt}end of do-file
+
+{com}. gen country
+{err}=exp required
+{txt}{search r(100), local:r(100);}
+
+{com}. gen country=""
+{txt}(597 missing values generated)
+
+{com}. format v1 %80s
+
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. format country %20s
+
+. format v1 %50s
+
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 5 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 5 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 5 observations pasted into data editor)
+{com}
+. replace country = "" in 29
+{txt}(1 real change made)
+
+{com}. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 3 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. replace country = "" in 153
+{txt}(1 real change made)
+
+{com}. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. replace v1 = "NORWAY," in 224
+{txt}(1 real change made)
+
+{com}. replace v1 = "NORWAY" in 224
+{txt}(1 real change made)
+
+{com}. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. replace v1 = "Professor Victoria CurzonXPrice*,Professor Emerita,University of Geneva,1980" in 280
+{txt}(1 real change made)
+
+{com}. drop in 279/279
+{txt}(1 observation deleted)
+
+{com}. {txt}*(1 variable, 3 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 3 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 3 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 4 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 15 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 15 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 15 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 15 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 15 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 15 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 15 observations pasted into data editor)
+{com}
+. {txt}*(1 variable, 15 observations pasted into data editor)
+{com}
+. replace country = "" in 588
+{txt}(1 real change made)
+
+{com}. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. replace country = "" in 591
+{txt}(1 real change made)
+
+{com}. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. {txt}*(1 variable, 1 observation pasted into data editor)
+{com}
+. save "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps10.dta"
+{txt}file C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps10.dta saved
+
+{com}. replace v1 = "Dr. Alan Rufus Waters,Professor Emeritus of International Business,Sid Craig School of Business,California State University, Fresno,1976,Life Member" in 576
+{txt}(1 real change made)
+
+{com}. replace v1 = "" in 575
+{txt}(1 real change made)
+
+{com}. replace lifemember = . in 575
+{txt}(1 real change made, 1 to missing)
+
+{com}. replace lifemember = 0 in 575
+{txt}(1 real change made)
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. save "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps10.dta", replace
+{txt}file C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps10.dta saved
+
+{com}. 
+{txt}end of do-file
+
+{com}. drop in 1
+{txt}(1 observation deleted)
+
+{com}. drop in 10
+{txt}(1 observation deleted)
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. drop in 27,34
+{err}options not allowed
+{txt}{search r(101), local:r(101);}
+
+end of do-file
+
+{search r(101), local:r(101);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. drop in 27 34
+{err}invalid '34' 
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. drop in 27 & 34
+{err}invalid '&' 
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. br if yearentered==""
+
+. edit
+
+. replace v1 = "Dr. Benjamin Klein,Professor Emeritus of Economics,UCLA,Senior Consultant,COMPASS LEXECON,1972,Life Member" in 451
+{txt}(1 real change made)
+
+{com}. drop in 450
+{txt}(1 observation deleted)
+
+{com}. br if yearentered==""
+
+. br
+
+. edit
+
+. drop in 572
+{txt}(1 observation deleted)
+
+{com}. br if yearentered==""
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. drop if yearentered==""
+{txt}(50 observations deleted)
+
+{com}. 
+{txt}end of do-file
+
+{com}. br
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. save "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps10.dta", replace
+{txt}file C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps10.dta saved
+
+{com}. 
+{txt}end of do-file
+
+{com}. format v1 %120s
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. gen hon=""
+{txt}(542 missing values generated)
+
+{com}. replace hon=regexs(0) if regexm(v1,"Dr. ")==1
+{txt}variable {bf}hon{sf} was {bf}{res}str1{sf}{txt} now {bf}{res}str4{sf}
+{txt}(190 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace hon=regexs(0) if regexm(v1,"Dr. |Professor [^of]|")==1
+{txt}variable {bf}hon{sf} was {bf}{res}str4{sf}{txt} now {bf}{res}str11{sf}
+{txt}(122 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace hon=regexs(0) if regexm(v1,"Dr. |Professor [A-Z]")==1
+{txt}(2 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. drop hon
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. gen hon=""
+{txt}(542 missing values generated)
+
+{com}. replace hon=regexs(0) if regexm(v1,"Dr. |Professor [A-Z]")==1
+{txt}variable {bf}hon{sf} was {bf}{res}str1{sf}{txt} now {bf}{res}str11{sf}
+{txt}(283 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. drop hon
+{txt}
+{com}. gen hon=""
+{txt}(542 missing values generated)
+
+{com}. replace hon=regexs(0) if regexm(v1,"Dr. |(Professor) [A-Z]")==1
+{txt}variable {bf}hon{sf} was {bf}{res}str1{sf}{txt} now {bf}{res}str11{sf}
+{txt}(283 real changes made)
+
+{com}. 
+. 
+{txt}end of do-file
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace hon=regexs(0) if regexm(v1,"Dr. |((Professor)[A-Z])")==1
+{txt}(26 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. drop hon
+{txt}
+{com}. gen hon=""
+{txt}(542 missing values generated)
+
+{com}. replace hon=regexs(0) if regexm(v1,"Dr. |((Professor)[A-Z])")==1
+{txt}variable {bf}hon{sf} was {bf}{res}str1{sf}{txt} now {bf}{res}str4{sf}
+{txt}(190 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace hon=regexs(0) if regexm(v1,"Dr. |Mr.|Ms.|Mrs.|^(Professor)|")==1
+{txt}variable {bf}hon{sf} was {bf}{res}str4{sf}{txt} now {bf}{res}str9{sf}
+{txt}(270 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace hon=regexs(0) if regexm(v1,"Dr.|Mr.|Ms.|Mrs.|^(Professor)|Monsieur|Hon. Sir")==1
+{txt}(167 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. br if regexm(hon, "Hon")==1
+
+. br+
+{err}+ invalid name
+{txt}{search r(198), local:r(198);}
+
+{com}. br
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace hon=regexs(0) if regexm(v1,"Dr.|Mr.|Ms.|Mrs.|^(Professor)|Monsieur|Hon. Sir|Honorable|Rt. Hon. Dr. Sir |")==1
+{txt}variable {bf}hon{sf} was {bf}{res}str9{sf}{txt} now {bf}{res}str17{sf}
+{txt}(7 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. sort hon
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace hon=regexs(0) if regexm(v1,"Dr.|Mr.|Ms.|Mrs.|^(Professor)|Monsieur|Hon. Sir|Honorable|Rt. Hon. Dr. Sir |Prof.|Ambassador|The Honorable|^(Hon.)|Judge|Dipl.|")==1
+{txt}(17 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. sort hon
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace hon=regexs(0) if regexm(v1,"Dr.|Mr.|Ms.|Mrs.|^(Professor)|Monsieur|Hon. Sir|Honorable|Rt. Hon. Dr. Sir |Prof.|Ambassador|The Honorable|^(Hon.)|Judge|Dipl.|Reverend|The Rt. Hon. The Lord Howe Of Aberavon|")==1
+{txt}variable {bf}hon{sf} was {bf}{res}str17{sf}{txt} now {bf}{res}str38{sf}
+{txt}(3 real changes made)
+
+{com}. 
+{txt}end of do-file
+
+{com}. sort hon
+
+. split v1, generate(name) parse(,) limit(1)
+{res}variable created as string: 
+{txt}{col 1}name1
+
+{com}. br
+
+. split v1, generate(name) parse(,) limit(2)
+{err}cannot generate new variables using stub name
+{txt}{search r(110), local:r(110);}
+
+{com}. split v1, generate(name_) parse(,) limit(2)
+{res}variables created as string: 
+{txt}{col 1}name_1{col 9}name_2
+
+{com}. drop name1
+
+. drop name_1 name_2
+
+. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. split v1, generate(name_) parse(,) 
+{res}variables created as string: 
+{txt}{col 1}name_1{col 9}name_2{col 17}name_3{col 25}name_4{col 33}name_5{col 41}name_6{col 49}name_7
+
+{com}. 
+{txt}end of do-file
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. replace name_1-name_7=="" if regexm(name_1-name_7,"[0-9][0-9][0-9][0-9]")
+{err}== invalid name
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. help nwcommands
+
+. ssc install nwcommands
+{txt}{err}ssc install: "nwcommands" not found at SSC, type {stata search nwcommands}
+(To find all packages at SSC that start with n, type {stata ssc describe n})
+{txt}{search r(601), local:r(601);}
+
+{com}. install nwcommands
+{err}command {bf}install{sf} is unrecognized
+{txt}{search r(199), local:r(199);}
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. save "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps10.dta", replace
+{txt}file C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps10.dta saved
+
+{com}. 
+{txt}end of do-file
+
+{com}. do "C:\Users\Markus\AppData\Local\Temp\STD24fc_000000.tmp"
+{txt}
+{com}. save "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps10.dta", replace
+{txt}file C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps10.dta saved
+
+{com}. 
+{txt}end of do-file
+
+{com}. br
+
+. order v1, last
+
+. do "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\mps.do"
+{txt}
+{com}. ***MPS Directory
+. clear all
+{res}{txt}
+{com}. 
+. *log using 
+. 
+. import delimited "C:\Users\Markus\Desktop\GIT\data-science-practice\js\earhart-fellows\Miscellaneous\Mont Pelerin Society Directory 2010.txt", delimiter("  ", asstring) ///Importing everything to one variable--> parse
+> 
+{res}{text}(1 var, 597 obs)
+
+{com}. *** Generate variables that easily subtracted from string. 
+. gen lifemember=0
+{txt}
+{com}. replace lifemember=1 if regexm(v1, "Life Member")==1
+{txt}(121 real changes made)
+
+{com}. 
+. gen yearentered=substr(v1,-5,.) if regexm(v1,"[0-9],$")==1
+{txt}(597 missing values generated)
+
+{com}. replace yearentered=subinstr(yearentered,",","",.)
+{txt}(0 real changes made)
+
+{com}. 
+. *Now extract entering years for life members
+. replace yearentered=regexs(0) if regexm(v1,"[0-9][0-9][0-9][0-9]")==1
+{txt}variable {bf}yearentered{sf} was {bf}{res}str1{sf}{txt} now {bf}{res}str4{sf}
+{txt}(542 real changes made)
+
+{com}. destring yearentered, replace ignore(`","') force ///This is easier than subinstr!
+> 
+{txt}yearentered: all characters numeric; {res}replaced {txt}as {res}int
+{txt}(55 missing values generated)
+{res}{txt}
+{com}. *trim the comma at the end of v1
+. replace v1=substr(v1,,-1)
+{err}invalid syntax
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. exit, clear
