@@ -88,6 +88,18 @@ replace sponsors="G. Ellis Sandoz Jr." if regexm(sponsors, "G. Ellis Sandoz")==1
 replace sponsors=subinstr(sponsors, "&", "and", 5000)
 replace sponsors=subinstr(sponsors, "~", ",", 5000)
 
+***MAKE SURE THIS FITS AT THIS POINT IN FILE***
+encode(gi_1), gen(ins)
+encode(numyears), gen(nyears)
+
+
+
+
+
+
+
+
+
 ***Try to scrape wikipedia entry for MPS***
 file open test using "https://en.wikipedia.org/wiki/Mont_Pelerin_Society", read
 file read test line
