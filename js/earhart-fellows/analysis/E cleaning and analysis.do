@@ -90,7 +90,10 @@ replace sponsors=subinstr(sponsors, "~", ",",.)
 
 ***MAKE SURE THIS FITS AT THIS POINT IN FILE***
 encode(gi_1), gen(ins)
+replace gi_1=encode(gi_1)
 order gi_1, before(areaofstudy)
+
+
 
 *encode(numyears), gen(nyears)///delete?
 
