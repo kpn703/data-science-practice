@@ -34,7 +34,7 @@ replace gi_country="USA" if regexm(gi2, "Switzerland|United Kingdom|Canada|Mexic
 gen gi_subcampus=gi2 if regexm(gi2, "Switzerland|United Kingdom|Canada|Mexico|Israel|Germany|France|Belgium")==0
 drop gi2
 order name gi academicyear, first
-order graduateinstitution entryid gi, last
+order graduateinstitution multipledegrees entryid gi, last
 *gi_1/gi_2*
 split(gi), gen(gi_) parse(/)
 format gi_1 gi_2 %30s
@@ -67,7 +67,7 @@ replace gi_1="Indiana University" if regexm(gi_1, "University of Indiana")==1
 ***Stringgroup to see whether typo's exist in gi_1
 *strgroup gi_1, gen(gi_grouped) threshold(.01) ///Not needed anymore?
 
-***Clean/match typo's etc. among sponsors
+***Clean/match typo's etc. among sponsors///Reorder? 
 strgroup sponsors, gen(sponsors_grouped) threshold(0.01)
 codebook sponsors_grouped
 
@@ -85,16 +85,20 @@ replace sponsors="John J. DiIulio Jr." if regexm(sponsors, "John J. D")==1
 replace sponsors="G. Ellis Sandoz Jr." if regexm(sponsors, "G. Ellis Sandoz")==1
 
 ***Subinstr inconsistent use of and/&,  
-replace sponsors=subinstr(sponsors, "&", "and", 5000)
-replace sponsors=subinstr(sponsors, "~", ",", 5000)
+replace sponsors=subinstr(sponsors, "&", "and",.)
+replace sponsors=subinstr(sponsors, "~", ",",.)
 
 ***MAKE SURE THIS FITS AT THIS POINT IN FILE***
 encode(gi_1), gen(ins)
-encode(numyears), gen(nyears)
+order gi_1, before(areaofstudy)
 
+*encode(numyears), gen(nyears)///delete?
 
-
-
+/***TRYING OUT MULTILEVEL MODELS***Save this for when the book arrives and you feel like doing it....
+gen academy=0
+replace academy=1 if regexm(mailingaddress, "University|College")==1
+encode(gi_1), gen(gi_)
+*/
 
 
 
